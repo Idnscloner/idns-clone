@@ -95,9 +95,9 @@
       border-radius: 18px;
       padding: 30px 36px;
       width: 360px;
-      max-width: 90vw;         /* keep inside viewport width */
-      max-height: 80vh;        /* max height 80% viewport height */
-      overflow-y: auto;        /* add vertical scroll if content too tall */
+      max-width: 90vw;
+      max-height: 80vh;
+      overflow-y: auto;
       box-shadow: 0 12px 30px rgba(0,0,0,0.18);
       transform: scale(0.75);
       opacity: 0;
@@ -116,13 +116,6 @@
       box-shadow: 0 12px 30px rgba(255,255,255,0.08);
     }
 
-    /* Labels & Inputs */
-    #settingsContent h2 {
-      font-weight: 700;
-      font-size: 1.7rem;
-      margin-bottom: 18px;
-      user-select: text;
-    }
     label {
       display: block;
       text-align: left;
@@ -132,7 +125,6 @@
       user-select: text;
     }
 
-    /* Toggle Switch */
     .toggle-switch {
       display: flex;
       align-items: center;
@@ -178,7 +170,6 @@
       user-select: text;
     }
 
-    /* Close & Apply buttons styling */
     #applySettingsBtn {
       background: #28a745;
       margin-top: 24px;
@@ -204,7 +195,6 @@
       box-shadow: 0 8px 18px rgba(176, 42, 55, 0.7);
     }
 
-    /* Settings Button */
     #openSettingsBtn {
       user-select: none;
       background: #343a40;
@@ -224,7 +214,6 @@
       box-shadow: 0 8px 18px rgba(35, 39, 43, 0.9);
     }
 
-    /* Dark mode body */
     body.dark-mode {
       background-color: #121212;
       color: #eee;
@@ -246,7 +235,6 @@
       box-shadow: 0 6px 15px rgba(21, 101, 192, 0.6);
     }
 
-    /* Donation Button Special Style */
     #openDonateBtn {
       background-color: #ffc439;
       color: #111;
@@ -264,7 +252,6 @@
       box-shadow: 0 6px 15px rgba(230, 177, 50, 0.9);
     }
 
-    /* Loading bar container */
     #loadingBarContainer {
       position: fixed;
       top: 0;
@@ -275,7 +262,6 @@
       z-index: 10000;
     }
 
-    /* Loading bar itself */
     #loadingBar {
       height: 100%;
       width: 0%;
@@ -283,7 +269,6 @@
       transition: width 0.3s ease;
     }
 
-    /* Loading overlay full screen */
     #loadingOverlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -297,9 +282,10 @@
       font-size: 1.8rem;
       font-weight: 700;
       user-select: none;
+      font-family: monospace, monospace;
+      letter-spacing: 0.05em;
     }
 
-    /* Particle container to keep snow behind content */
     #particleContainer {
       pointer-events: none;
       position: fixed;
@@ -311,7 +297,7 @@
   </style>
 </head>
 <body>
-  <div id="loadingOverlay">Loading...</div>
+  <div id="loadingOverlay"><span id="loadingText"></span></div>
   <div id="loadingBarContainer"><div id="loadingBar"></div></div>
 
   <h1>📶 FakeDNS Portal</h1>
@@ -341,20 +327,16 @@
     <button onclick="window.location.href='https://us.idnsportal.com'">Go to iDNSPortal (if this breaks)</button>
   </div>
 
-  <!-- Donation Button -->
   <div class="section">
     <button id="openDonateBtn">💸 Donate with PayPal.me</button>
   </div>
 
-  <!-- Settings Button -->
   <div class="section">
     <button id="openSettingsBtn">⚙️ Settings</button>
   </div>
 
-  <!-- Particle Container -->
   <div id="particleContainer"></div>
 
-  <!-- Modal -->
   <div id="settingsModal" aria-hidden="true">
     <div id="settingsContent" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
       <h2 id="settingsTitle">Customize Page & Dark Mode</h2>
@@ -391,8 +373,6 @@
   </div>
 
   <script>
-    // === Loading bar + OS-based delay logic ===
-
     function detectOS() {
       const userAgent = navigator.userAgent || navigator.vendor || window.opera;
       if (/windows phone/i.test(userAgent)) return "WindowsPhone";
@@ -408,18 +388,29 @@
       return Math.random() * (max - min) + min;
     }
 
+    // Typing effect for loading text
+    async function typeLoadingText(text, totalDuration) {
+      const container = document.getElementById("loadingText");
+      container.textContent = "";
+
+      const totalChars = text.length;
+      if (totalChars === 0) return;
+
+      const delayPerChar = totalDuration / totalChars;
+
+      for (let i = 0; i < totalChars; i++) {
+        container.textContent += text[i];
+        await new Promise(r => setTimeout(r, delayPerChar));
+      }
+    }
+
     function runLoadingBar(durationMs) {
       return new Promise((resolve) => {
         const loadingBar = document.getElementById("loadingBar");
         const loadingOverlay = document.getElementById("loadingOverlay");
 
-        // Reset bar
         loadingBar.style.width = "0%";
         loadingOverlay.style.display = "flex";
-
-        // Animation:
-        // 0% to 25% in 0.5 seconds linear slow
-        // then 25% to 100% quickly for the rest of duration
 
         const firstPhaseDuration = 500;
         const totalDuration = durationMs;
@@ -434,13 +425,22 @@
         }, firstPhaseDuration);
 
         setTimeout(() => {
-          loadingOverlay.style.display = "none"; // HIDE overlay AFTER loading is done
+          loadingOverlay.style.display = "none";
           resolve();
         }, totalDuration);
       });
     }
 
-    // === Snow particles code ===
+    // Combined loading function: type text & run loading bar in parallel
+    async function runLoadingWithTyping(text, duration) {
+      // Run both simultaneously
+      await Promise.all([
+        typeLoadingText(text, duration),
+        runLoadingBar(duration),
+      ]);
+    }
+
+    // Particle stuff
 
     const particleContainer = document.getElementById("particleContainer");
     let particles = [];
@@ -464,288 +464,3 @@
         this.element.style.width = this.size + "px";
         this.element.style.height = this.size + "px";
         this.element.style.left = this.x + "px";
-        this.element.style.top = this.y + "px";
-        this.element.style.zIndex = "0";
-
-        particleContainer.appendChild(this.element);
-      }
-      update() {
-        this.y += this.speedY;
-        this.x += this.speedX;
-
-        if (this.y > window.innerHeight) {
-          this.y = -this.size;
-          this.x = Math.random() * window.innerWidth;
-        }
-        if (this.x > window.innerWidth) this.x = 0;
-        if (this.x < 0) this.x = window.innerWidth;
-
-        this.element.style.top = this.y + "px";
-        this.element.style.left = this.x + "px";
-      }
-      remove() {
-        particleContainer.removeChild(this.element);
-      }
-    }
-
-    function createParticles(color) {
-      clearParticles();
-
-      particles = [];
-      const count = 80;
-
-      for (let i = 0; i < count; i++) {
-        const size = randomInRange(2, 6);
-        const x = Math.random() * window.innerWidth;
-        const y = Math.random() * window.innerHeight;
-        const speedY = randomInRange(0.6, 1.4);
-        const speedX = randomInRange(-0.3, 0.3);
-        particles.push(new Particle(x, y, size, speedY, speedX, color));
-      }
-      if (!particleAnimationFrame) animateParticles();
-    }
-
-    function animateParticles() {
-      particles.forEach(p => p.update());
-      particleAnimationFrame = requestAnimationFrame(animateParticles);
-    }
-
-    function clearParticles() {
-      particles.forEach(p => p.remove());
-      particles = [];
-      if (particleAnimationFrame) {
-        cancelAnimationFrame(particleAnimationFrame);
-        particleAnimationFrame = null;
-      }
-    }
-
-    // === Dark mode and particle color sync ===
-
-    function updateParticleColors() {
-      const isDark = document.body.classList.contains("dark-mode");
-      const particleColor = isDark ? "white" : "#555"; // white for dark, gray for light
-      particles.forEach(p => {
-        p.color = particleColor;
-        p.element.style.backgroundColor = particleColor;
-      });
-    }
-
-    // === Settings Modal code ===
-    const openSettingsBtn = document.getElementById("openSettingsBtn");
-    const settingsModal = document.getElementById("settingsModal");
-    const closeSettingsBtn = document.getElementById("closeSettings");
-    const applySettingsBtn = document.getElementById("applySettingsBtn");
-    const pageTitleInput = document.getElementById("pageTitleInput");
-    const faviconInput = document.getElementById("faviconInput");
-    const darkModeToggle = document.getElementById("darkModeToggle");
-    const particlesToggle = document.getElementById("particlesToggle");
-    const panicKeyInput = document.getElementById("panicKeyInput");
-    const panicUrlInput = document.getElementById("panicUrlInput");
-    const favicon = document.getElementById("favicon");
-
-    const defaultTitle = document.title;
-    const defaultFaviconURL = favicon.href;
-
-    // Load saved dark mode & custom settings from localStorage
-    function loadSettings() {
-      const darkMode = localStorage.getItem("darkMode") === "true";
-      const customTitle = localStorage.getItem("customTitle") || "";
-      const customFavicon = localStorage.getItem("customFavicon") || "";
-      const panicKey = localStorage.getItem("panicKey") || "P";
-      const panicUrl = localStorage.getItem("panicUrl") || "https://portal.austinisd.org";
-      const particlesOn = localStorage.getItem("particlesOn") === "true";
-
-      if (darkMode) {
-        enableDarkMode(false);
-        darkModeToggle.checked = true;
-      }
-      if (customTitle) {
-        document.title = customTitle;
-        pageTitleInput.value = customTitle;
-      }
-      if (customFavicon) {
-        favicon.href = customFavicon;
-        faviconInput.value = customFavicon;
-      }
-
-      panicKeyInput.value = panicKey.toUpperCase();
-      panicUrlInput.value = panicUrl;
-
-      particlesToggle.checked = particlesOn;
-
-      if (particlesOn) {
-        createParticles(document.body.classList.contains("dark-mode") ? "white" : "#555");
-      } else {
-        clearParticles();
-      }
-    }
-
-    // Open modal with animation
-    openSettingsBtn.addEventListener("click", () => {
-      settingsModal.style.display = "flex";
-      setTimeout(() => settingsModal.classList.add("show"), 10);
-      settingsModal.setAttribute("aria-hidden", "false");
-    });
-
-    // Close modal with animation
-    function closeModal() {
-      settingsModal.classList.remove("show");
-      settingsModal.setAttribute("aria-hidden", "true");
-      setTimeout(() => {
-        settingsModal.style.display = "none";
-      }, 300);
-    }
-    closeSettingsBtn.addEventListener("click", closeModal);
-
-    // Close modal if clicking outside modal content
-    settingsModal.addEventListener("click", e => {
-      if (e.target === settingsModal) closeModal();
-    });
-
-    // Dark mode toggling functions
-    function enableDarkMode(save = true) {
-      document.body.classList.add("dark-mode");
-      if (save) localStorage.setItem("darkMode", "true");
-      if (particlesToggle.checked) updateParticleColors();
-    }
-    function disableDarkMode(save = true) {
-      document.body.classList.remove("dark-mode");
-      if (save) localStorage.setItem("darkMode", "false");
-      if (particlesToggle.checked) updateParticleColors();
-    }
-
-    // Apply changes button
-    applySettingsBtn.addEventListener("click", () => {
-      const newTitle = pageTitleInput.value.trim();
-      const newFavicon = faviconInput.value.trim();
-      const darkModeEnabled = darkModeToggle.checked;
-      const particlesEnabled = particlesToggle.checked;
-      let panicKey = panicKeyInput.value.trim().toUpperCase();
-      let panicUrl = panicUrlInput.value.trim();
-
-      if (newTitle) {
-        document.title = newTitle;
-        localStorage.setItem("customTitle", newTitle);
-      } else {
-        document.title = defaultTitle;
-        localStorage.removeItem("customTitle");
-      }
-
-      if (newFavicon) {
-        favicon.href = newFavicon;
-        localStorage.setItem("customFavicon", newFavicon);
-      } else {
-        favicon.href = defaultFaviconURL;
-        localStorage.removeItem("customFavicon");
-      }
-
-      if (darkModeEnabled) enableDarkMode();
-      else disableDarkMode();
-
-      if (particlesEnabled) {
-        createParticles(document.body.classList.contains("dark-mode") ? "white" : "#555");
-        localStorage.setItem("particlesOn", "true");
-      } else {
-        clearParticles();
-        localStorage.setItem("particlesOn", "false");
-      }
-
-      // Validate panic key — must be single alphanumeric char or empty
-      if (/^[A-Z0-9]$/.test(panicKey)) {
-        localStorage.setItem("panicKey", panicKey);
-      } else {
-        panicKey = "P";
-        localStorage.setItem("panicKey", panicKey);
-        panicKeyInput.value = panicKey;
-      }
-
-      // Validate panic URL (simple check)
-      if (panicUrl && /^https?:\/\//.test(panicUrl)) {
-        localStorage.setItem("panicUrl", panicUrl);
-      } else {
-        panicUrl = "https://portal.austinisd.org";
-        localStorage.setItem("panicUrl", panicUrl);
-        panicUrlInput.value = panicUrl;
-      }
-
-      alert("Settings saved, bro! 🔥");
-      closeModal();
-    });
-
-    // Panic key listener — redirects to panic URL instantly
-    document.addEventListener("keydown", e => {
-      const panicKey = localStorage.getItem("panicKey") || "P";
-      const panicUrl = localStorage.getItem("panicUrl") || "https://portal.austinisd.org";
-
-      if (e.key.toUpperCase() === panicKey) {
-        window.location.href = panicUrl;
-      }
-    });
-
-    // Load settings on page load
-    loadSettings();
-
-    // Donate button click handler
-    document.getElementById('openDonateBtn').addEventListener('click', () => {
-      window.open('https://paypal.me/luisg990', '_blank');
-    });
-
-    // Custom Domain Form submit
-    document.getElementById("customDomainForm").addEventListener("submit", function(event) {
-      event.preventDefault();
-      let input = document.getElementById("customDomainInput").value.trim();
-      if (!input) return;
-
-      // Detect ctrl/cmd pressed for opening in new tab
-      const ctrlPressed = event.ctrlKey || event.metaKey;
-
-      if (!isValidURL(input)) {
-        const searchUrl = `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
-        if (ctrlPressed) {
-          window.open(searchUrl, "_blank");
-        } else {
-          window.location.href = searchUrl;
-        }
-        return;
-      }
-
-      if (!input.startsWith("http://") && !input.startsWith("https://")) {
-        input = "https://" + input;
-      }
-
-      if (ctrlPressed) {
-        window.open(input, "_blank");
-      } else {
-        window.location.href = input;
-      }
-    });
-
-    // Smart URL or DuckDuckGo Search detection
-    function isValidURL(str) {
-      const urlPattern = /^(https?:\/\/|www\.)[^\s]+$/i;
-      const tldPattern = /\.[a-z]{2,}$/i;
-      return urlPattern.test(str) || tldPattern.test(str);
-    }
-
-    // === On page load, run the loading bar and delay based on OS ===
-    window.addEventListener("load", async () => {
-      const os = detectOS();
-
-      let delayMs = 1000; // fallback
-
-      if (os === "MacOS") delayMs = randomInRange(2600, 3400);
-      else if (os === "Windows") delayMs = randomInRange(700, 1200);
-      else if (os === "ChromeOS") delayMs = randomInRange(1700, 2100);
-      else if (os === "Android") delayMs = randomInRange(600, 800);
-      else if (os === "iOS") delayMs = randomInRange(2100, 3400);
-
-      await runLoadingBar(delayMs);
-
-      // After loading is done, enable particles if toggled on and fix color to match dark mode
-      if (particlesToggle.checked) {
-        createParticles(document.body.classList.contains("dark-mode") ? "white" : "#555");
-      }
-    });
-  </script>
-</body>
-</html>
