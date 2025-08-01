@@ -1,116 +1,246 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Wi-Fi Configuration Utility</title>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wi-Fi Configuration Utility</title>
   <link id="favicon" rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/6/6a/Wi-Fi_icon.svg" />
 
   <style>
+    /* === Body & basics === */
     body {
-      font-family: sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       text-align: center;
       padding: 40px;
       background-color: #f2f2f2;
-      color: #000;
+      color: #222;
       transition: background-color 0.4s ease, color 0.4s ease;
+      user-select: none;
     }
-    input[type="text"] {
-      padding: 10px;
-      width: 60%;
+    input[type="text"], input[type="url"] {
+      padding: 10px 12px;
       font-size: 16px;
-      margin-bottom: 10px;
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 16px;
+      border-radius: 8px;
+      border: 1.8px solid #ccc;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      font-weight: 500;
+    }
+    input[type="text"]:focus, input[type="url"]:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 8px rgba(0,123,255,0.5);
     }
     button {
-      padding: 10px 20px;
-      font-size: 16px;
-      margin: 6px;
-      border: none;
-      border-radius: 6px;
       cursor: pointer;
-      background-color: #007bff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 28px;
+      font-size: 16px;
+      font-weight: 600;
+      background: #007bff;
       color: white;
-      transition: background-color 0.3s ease;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 9px rgba(0, 123, 255, 0.3);
+      user-select: none;
+      margin: 6px 8px 20px;
+      min-width: 120px;
+      letter-spacing: 0.04em;
     }
     button:hover {
-      background-color: #0056b3;
-    }
-    .section {
-      margin-top: 30px;
+      background: #0056b3;
+      box-shadow: 0 6px 15px rgba(0, 86, 179, 0.5);
     }
 
-    /* Modal background */
+    h1 {
+      font-weight: 700;
+      font-size: 2.8rem;
+      margin-bottom: 10px;
+      user-select: text;
+    }
+    p {
+      font-size: 1.15rem;
+      margin-bottom: 30px;
+      user-select: text;
+      color: #444;
+    }
+    .section {
+      margin-top: 28px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      user-select: none;
+    }
+
+    /* === Modal styles === */
     #settingsModal {
       position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.5);
+      inset: 0;
+      background: rgba(0,0,0,0.55);
       display: none;
       justify-content: center;
       align-items: center;
       z-index: 9999;
       opacity: 0;
-      transition: opacity 0.3s ease;
+      transition: opacity 0.35s ease;
     }
     #settingsModal.show {
       display: flex;
       opacity: 1;
     }
-
-    /* Modal content */
     #settingsContent {
-      background: #fff;
-      border-radius: 12px;
-      padding: 30px 40px;
-      width: 320px;
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 30px 36px;
+      width: 360px;
       max-width: 90vw;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-      transform: scale(0.8);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+      transform: scale(0.75);
       opacity: 0;
-      transition: transform 0.3s ease, opacity 0.3s ease;
+      transition: transform 0.35s ease, opacity 0.35s ease;
+      font-weight: 500;
+      color: #222;
+      user-select: text;
     }
     #settingsModal.show #settingsContent {
       transform: scale(1);
       opacity: 1;
     }
-
-    /* Dark mode modal */
     body.dark-mode #settingsContent {
-      background: #222;
+      background: #2a2a2a;
       color: #eee;
+      box-shadow: 0 12px 30px rgba(255,255,255,0.08);
     }
 
-    /* Inputs */
+    /* Labels & Inputs */
+    #settingsContent h2 {
+      font-weight: 700;
+      font-size: 1.7rem;
+      margin-bottom: 18px;
+      user-select: text;
+    }
     label {
       display: block;
       text-align: left;
       font-weight: 600;
-      margin-bottom: 6px;
-      margin-top: 20px;
-      font-size: 14px;
-    }
-    input[type="text"], input[type="url"] {
-      width: 100%;
-      padding: 8px 12px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-      transition: border-color 0.3s ease;
-    }
-    input[type="text"]:focus, input[type="url"]:focus {
-      border-color: #007bff;
-      outline: none;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+      user-select: text;
     }
 
-    /* Close button */
+    /* Toggle Switch */
+    .toggle-switch {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 14px;
+      margin-top: 12px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .toggle-switch input[type="checkbox"] {
+      width: 48px;
+      height: 28px;
+      position: relative;
+      appearance: none;
+      background: #ccc;
+      border-radius: 28px;
+      outline: none;
+      transition: background 0.3s;
+      flex-shrink: 0;
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.1);
+    }
+    .toggle-switch input[type="checkbox"]:checked {
+      background: #007bff;
+    }
+    .toggle-switch input[type="checkbox"]::before {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 22px;
+      height: 22px;
+      background: white;
+      border-radius: 22px;
+      transition: 0.3s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    }
+    .toggle-switch input[type="checkbox"]:checked::before {
+      left: 23px;
+    }
+    .toggle-switch label {
+      font-size: 1rem;
+      color: inherit;
+      user-select: text;
+    }
+
+    /* Close & Apply buttons styling */
+    #applySettingsBtn {
+      background: #28a745;
+      margin-top: 24px;
+      width: 100%;
+      box-shadow: 0 6px 12px rgba(40, 167, 69, 0.5);
+      letter-spacing: 0.05em;
+      font-weight: 700;
+    }
+    #applySettingsBtn:hover {
+      background: #1e7e34;
+      box-shadow: 0 8px 18px rgba(30, 126, 52, 0.7);
+    }
     #closeSettings {
       background: #dc3545;
-      margin-top: 25px;
+      margin-top: 12px;
       width: 100%;
+      box-shadow: 0 6px 12px rgba(220, 53, 69, 0.5);
+      letter-spacing: 0.05em;
+      font-weight: 700;
     }
     #closeSettings:hover {
       background: #b02a37;
+      box-shadow: 0 8px 18px rgba(176, 42, 55, 0.7);
+    }
+
+    /* Settings Button */
+    #openSettingsBtn {
+      user-select: none;
+      background: #343a40;
+      padding: 14px 32px;
+      font-size: 18px;
+      font-weight: 700;
+      border-radius: 14px;
+      color: #fff;
+      box-shadow: 0 6px 12px rgba(52, 58, 64, 0.6);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      margin-top: 40px;
+      min-width: 180px;
+    }
+    #openSettingsBtn:hover {
+      background: #23272b;
+      box-shadow: 0 8px 18px rgba(35, 39, 43, 0.9);
+    }
+
+    /* Dark mode body */
+    body.dark-mode {
+      background-color: #121212;
+      color: #eee;
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+    body.dark-mode input[type="text"],
+    body.dark-mode input[type="url"] {
+      background-color: #333;
+      color: #eee;
+      border: 1.8px solid #555;
+    }
+    body.dark-mode button {
+      background-color: #1e88e5;
+      color: #eee;
+      box-shadow: 0 4px 9px rgba(30, 136, 229, 0.4);
+    }
+    body.dark-mode button:hover {
+      background-color: #1565c0;
+      box-shadow: 0 6px 15px rgba(21, 101, 192, 0.6);
     }
   </style>
 </head>
@@ -155,12 +285,18 @@
   <!-- Modal -->
   <div id="settingsModal" aria-hidden="true">
     <div id="settingsContent" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
-      <h2 id="settingsTitle">Customize Page</h2>
+      <h2 id="settingsTitle">Customize Page & Dark Mode</h2>
+
       <label for="pageTitleInput">Page Title</label>
       <input type="text" id="pageTitleInput" placeholder="Enter new page title" />
 
       <label for="faviconInput">Favicon URL</label>
       <input type="url" id="faviconInput" placeholder="Enter favicon URL" />
+
+      <label class="toggle-switch" for="darkModeToggle">
+        <input type="checkbox" id="darkModeToggle" />
+        <span>Enable Dark Mode</span>
+      </label>
 
       <button id="applySettingsBtn">Apply Changes</button>
       <button id="closeSettings">Close</button>
@@ -186,20 +322,35 @@
     const applySettingsBtn = document.getElementById("applySettingsBtn");
     const pageTitleInput = document.getElementById("pageTitleInput");
     const faviconInput = document.getElementById("faviconInput");
+    const darkModeToggle = document.getElementById("darkModeToggle");
     const favicon = document.getElementById("favicon");
 
-    // Store default title & favicon for reset
     const defaultTitle = document.title;
     const defaultFaviconURL = favicon.href;
 
+    // Load saved dark mode & custom settings from localStorage
+    function loadSettings() {
+      const darkMode = localStorage.getItem("darkMode") === "true";
+      const customTitle = localStorage.getItem("customTitle") || "";
+      const customFavicon = localStorage.getItem("customFavicon") || "";
+
+      if (darkMode) {
+        enableDarkMode(false);
+        darkModeToggle.checked = true;
+      }
+      if (customTitle) {
+        document.title = customTitle;
+        pageTitleInput.value = customTitle;
+      }
+      if (customFavicon) {
+        favicon.href = customFavicon;
+        faviconInput.value = customFavicon;
+      }
+    }
+
     // Open modal with animation
     openSettingsBtn.addEventListener("click", () => {
-      // Pre-fill inputs with current values
-      pageTitleInput.value = document.title === defaultTitle ? "" : document.title;
-      faviconInput.value = favicon.href === defaultFaviconURL ? "" : favicon.href;
-
       settingsModal.style.display = "flex";
-      // Small timeout for opacity transition
       setTimeout(() => settingsModal.classList.add("show"), 10);
       settingsModal.setAttribute("aria-hidden", "false");
     });
@@ -214,32 +365,57 @@
     }
     closeSettingsBtn.addEventListener("click", closeModal);
 
+    // Close modal if clicking outside modal content
+    settingsModal.addEventListener("click", e => {
+      if (e.target === settingsModal) closeModal();
+    });
+
+    // Dark mode toggling functions
+    function enableDarkMode(save = true) {
+      document.body.classList.add("dark-mode");
+      if (save) localStorage.setItem("darkMode", "true");
+    }
+    function disableDarkMode(save = true) {
+      document.body.classList.remove("dark-mode");
+      if (save) localStorage.setItem("darkMode", "false");
+    }
+
     // Apply changes button
     applySettingsBtn.addEventListener("click", () => {
       const newTitle = pageTitleInput.value.trim();
       const newFavicon = faviconInput.value.trim();
+      const darkModeEnabled = darkModeToggle.checked;
 
-      // Change page title or reset to default
+      // Title
       if (newTitle.length > 0) {
         document.title = newTitle;
+        localStorage.setItem("customTitle", newTitle);
       } else {
         document.title = defaultTitle;
+        localStorage.removeItem("customTitle");
       }
 
-      // Change favicon or reset to default
+      // Favicon
       if (newFavicon.length > 0) {
         favicon.href = newFavicon;
+        localStorage.setItem("customFavicon", newFavicon);
       } else {
         favicon.href = defaultFaviconURL;
+        localStorage.removeItem("customFavicon");
+      }
+
+      // Dark mode toggle
+      if (darkModeEnabled) {
+        enableDarkMode();
+      } else {
+        disableDarkMode();
       }
 
       closeModal();
     });
 
-    // Close modal if clicking outside content
-    settingsModal.addEventListener("click", (e) => {
-      if (e.target === settingsModal) closeModal();
-    });
+    // Load settings on page load
+    loadSettings();
   </script>
 </body>
 </html>
