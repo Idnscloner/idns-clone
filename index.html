@@ -2,14 +2,20 @@
 <html>
 <head>
   <title>Wi-Fi Configuration Utility</title>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- ✅ added this for mobile scaling -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /> <!-- ✅ mobile scaling -->
+
+  <!-- Favicon link (default) -->
+  <link id="favicon" rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/6/6a/Wi-Fi_icon.svg" />
+
   <style>
     body {
       font-family: sans-serif;
       text-align: center;
       padding: 40px;
       background-color: #f2f2f2;
+      color: #000;
+      transition: background-color 0.4s ease, color 0.4s ease;
     }
     input[type="text"] {
       padding: 10px;
@@ -26,12 +32,91 @@
       cursor: pointer;
       background-color: #007bff;
       color: white;
+      transition: background-color 0.3s ease;
     }
     button:hover {
       background-color: #0056b3;
     }
     .section {
       margin-top: 30px;
+    }
+
+    /* Dark mode styles */
+    body.dark-mode {
+      background-color: #121212;
+      color: #eee;
+    }
+    body.dark-mode button {
+      background-color: #1e88e5;
+      color: #eee;
+    }
+    body.dark-mode button:hover {
+      background-color: #1565c0;
+    }
+    body.dark-mode input[type="text"] {
+      background-color: #333;
+      color: #eee;
+      border: 1px solid #555;
+    }
+
+    /* Menu styles */
+    #settingsMenu {
+      max-height: 0;
+      overflow: hidden;
+      background-color: #ddd;
+      border-radius: 10px;
+      margin: 20px auto;
+      width: 300px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      transition: max-height 0.5s ease;
+      font-size: 18px;
+    }
+    #settingsMenu.open {
+      max-height: 150px; /* enough for the toggle */
+      padding: 20px;
+    }
+
+    /* Dark mode menu background */
+    body.dark-mode #settingsMenu {
+      background-color: #222;
+      color: #eee;
+    }
+
+    /* Toggle label styling */
+    .toggle-switch {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .toggle-switch input[type="checkbox"] {
+      width: 40px;
+      height: 20px;
+      position: relative;
+      appearance: none;
+      background: #ccc;
+      outline: none;
+      border-radius: 20px;
+      transition: background 0.3s;
+    }
+    .toggle-switch input[type="checkbox"]:checked {
+      background: #007bff;
+    }
+    .toggle-switch input[type="checkbox"]::before {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background: white;
+      border-radius: 16px;
+      transition: 0.3s;
+    }
+    .toggle-switch input[type="checkbox"]:checked::before {
+      left: 22px;
     }
   </style>
 </head>
@@ -41,8 +126,8 @@
 
   <div class="section">
     <form id="customDomainForm">
-      <input type="text" id="customDomainInput" placeholder="Enter a domain (e.g., google.com)">
-      <br>
+      <input type="text" id="customDomainInput" placeholder="Enter a domain (e.g., google.com)" />
+      <br />
       <button type="submit">Open Domain</button>
     </form>
   </div>
@@ -62,12 +147,25 @@
     <h2>🚨 Fallback Button</h2>
     <button onclick="window.location.href='https://us.idnsportal.com'">Go to iDNSPortal (if this breaks)</button>
   </div>
-  
+
   <div class="section">
     <h2>Open Source Github Repository</h2>
     <button onclick="window.location.href='https://github.com/Idnscloner/inds-clone'">Visit my Github Repo</button>
   </div>
+
+  <!-- NEW: Settings Button to toggle menu -->
+  <div class="section">
+    <button id="settingsBtn">⚙️ Settings</button>
+    <div id="settingsMenu">
+      <label class="toggle-switch" for="darkModeToggle">
+        <input type="checkbox" id="darkModeToggle" />
+        Enable Dark Mode
+      </label>
+    </div>
+  </div>
+
   <script>
+    // Custom Domain Form submit
     document.getElementById("customDomainForm").addEventListener("submit", function(event) {
       event.preventDefault();
       let domain = document.getElementById("customDomainInput").value.trim();
@@ -78,6 +176,50 @@
         window.location.href = domain;
       }
     });
+
+    // Toggle Settings Menu
+    const settingsBtn = document.getElementById("settingsBtn");
+    const settingsMenu = document.getElementById("settingsMenu");
+
+    settingsBtn.addEventListener("click", () => {
+      settingsMenu.classList.toggle("open");
+    });
+
+    // Dark Mode Toggle with animation + persist setting in localStorage
+    const darkModeToggle = document.getElementById("darkModeToggle");
+    const favicon = document.getElementById("favicon");
+    const defaultTitle = document.title;
+    const darkModeTitle = "🌙 Dark Mode Enabled";
+    const defaultFaviconURL = "https://upload.wikimedia.org/wikipedia/commons/6/6a/Wi-Fi_icon.svg"; // original
+    const darkFaviconURL = "https://upload.wikimedia.org/wikipedia/commons/8/8c/Filled_Moon_icon.svg"; // moon icon
+
+    // Load saved dark mode preference
+    if (localStorage.getItem("darkMode") === "true") {
+      enableDarkMode();
+      darkModeToggle.checked = true;
+    }
+
+    darkModeToggle.addEventListener("change", () => {
+      if (darkModeToggle.checked) {
+        enableDarkMode();
+      } else {
+        disableDarkMode();
+      }
+    });
+
+    function enableDarkMode() {
+      document.body.classList.add("dark-mode");
+      document.title = darkModeTitle;
+      favicon.href = darkFaviconURL;
+      localStorage.setItem("darkMode", "true");
+    }
+
+    function disableDarkMode() {
+      document.body.classList.remove("dark-mode");
+      document.title = defaultTitle;
+      favicon.href = defaultFaviconURL;
+      localStorage.setItem("darkMode", "false");
+    }
   </script>
 </body>
 </html>
