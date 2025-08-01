@@ -3,9 +3,7 @@
 <head>
   <title>Wi-Fi Configuration Utility</title>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" /> <!-- ✅ mobile scaling -->
-
-  <!-- Favicon link (default) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link id="favicon" rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/6/6a/Wi-Fi_icon.svg" />
 
   <style>
@@ -41,82 +39,78 @@
       margin-top: 30px;
     }
 
-    /* Dark mode styles */
-    body.dark-mode {
-      background-color: #121212;
-      color: #eee;
-    }
-    body.dark-mode button {
-      background-color: #1e88e5;
-      color: #eee;
-    }
-    body.dark-mode button:hover {
-      background-color: #1565c0;
-    }
-    body.dark-mode input[type="text"] {
-      background-color: #333;
-      color: #eee;
-      border: 1px solid #555;
-    }
-
-    /* Menu styles */
-    #settingsMenu {
-      max-height: 0;
-      overflow: hidden;
-      background-color: #ddd;
-      border-radius: 10px;
-      margin: 20px auto;
-      width: 300px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      transition: max-height 0.5s ease;
-      font-size: 18px;
-    }
-    #settingsMenu.open {
-      max-height: 150px; /* enough for the toggle */
-      padding: 20px;
-    }
-
-    /* Dark mode menu background */
-    body.dark-mode #settingsMenu {
-      background-color: #222;
-      color: #eee;
-    }
-
-    /* Toggle label styling */
-    .toggle-switch {
-      display: flex;
-      align-items: center;
+    /* Modal background */
+    #settingsModal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.5);
+      display: none;
       justify-content: center;
-      gap: 10px;
-      cursor: pointer;
-      user-select: none;
+      align-items: center;
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
-    .toggle-switch input[type="checkbox"] {
-      width: 40px;
-      height: 20px;
-      position: relative;
-      appearance: none;
-      background: #ccc;
+    #settingsModal.show {
+      display: flex;
+      opacity: 1;
+    }
+
+    /* Modal content */
+    #settingsContent {
+      background: #fff;
+      border-radius: 12px;
+      padding: 30px 40px;
+      width: 320px;
+      max-width: 90vw;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      transform: scale(0.8);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    #settingsModal.show #settingsContent {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    /* Dark mode modal */
+    body.dark-mode #settingsContent {
+      background: #222;
+      color: #eee;
+    }
+
+    /* Inputs */
+    label {
+      display: block;
+      text-align: left;
+      font-weight: 600;
+      margin-bottom: 6px;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+    input[type="text"], input[type="url"] {
+      width: 100%;
+      padding: 8px 12px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      transition: border-color 0.3s ease;
+    }
+    input[type="text"]:focus, input[type="url"]:focus {
+      border-color: #007bff;
       outline: none;
-      border-radius: 20px;
-      transition: background 0.3s;
     }
-    .toggle-switch input[type="checkbox"]:checked {
-      background: #007bff;
+
+    /* Close button */
+    #closeSettings {
+      background: #dc3545;
+      margin-top: 25px;
+      width: 100%;
     }
-    .toggle-switch input[type="checkbox"]::before {
-      content: "";
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 16px;
-      height: 16px;
-      background: white;
-      border-radius: 16px;
-      transition: 0.3s;
-    }
-    .toggle-switch input[type="checkbox"]:checked::before {
-      left: 22px;
+    #closeSettings:hover {
+      background: #b02a37;
     }
   </style>
 </head>
@@ -153,14 +147,23 @@
     <button onclick="window.location.href='https://github.com/Idnscloner/inds-clone'">Visit my Github Repo</button>
   </div>
 
-  <!-- NEW: Settings Button to toggle menu -->
+  <!-- Settings Button -->
   <div class="section">
-    <button id="settingsBtn">⚙️ Settings</button>
-    <div id="settingsMenu">
-      <label class="toggle-switch" for="darkModeToggle">
-        <input type="checkbox" id="darkModeToggle" />
-        Enable Dark Mode
-      </label>
+    <button id="openSettingsBtn">⚙️ Settings</button>
+  </div>
+
+  <!-- Modal -->
+  <div id="settingsModal" aria-hidden="true">
+    <div id="settingsContent" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <h2 id="settingsTitle">Customize Page</h2>
+      <label for="pageTitleInput">Page Title</label>
+      <input type="text" id="pageTitleInput" placeholder="Enter new page title" />
+
+      <label for="faviconInput">Favicon URL</label>
+      <input type="url" id="faviconInput" placeholder="Enter favicon URL" />
+
+      <button id="applySettingsBtn">Apply Changes</button>
+      <button id="closeSettings">Close</button>
     </div>
   </div>
 
@@ -177,49 +180,66 @@
       }
     });
 
-    // Toggle Settings Menu
-    const settingsBtn = document.getElementById("settingsBtn");
-    const settingsMenu = document.getElementById("settingsMenu");
-
-    settingsBtn.addEventListener("click", () => {
-      settingsMenu.classList.toggle("open");
-    });
-
-    // Dark Mode Toggle with animation + persist setting in localStorage
-    const darkModeToggle = document.getElementById("darkModeToggle");
+    const openSettingsBtn = document.getElementById("openSettingsBtn");
+    const settingsModal = document.getElementById("settingsModal");
+    const closeSettingsBtn = document.getElementById("closeSettings");
+    const applySettingsBtn = document.getElementById("applySettingsBtn");
+    const pageTitleInput = document.getElementById("pageTitleInput");
+    const faviconInput = document.getElementById("faviconInput");
     const favicon = document.getElementById("favicon");
+
+    // Store default title & favicon for reset
     const defaultTitle = document.title;
-    const darkModeTitle = "🌙 Dark Mode Enabled";
-    const defaultFaviconURL = "https://upload.wikimedia.org/wikipedia/commons/6/6a/Wi-Fi_icon.svg"; // original
-    const darkFaviconURL = "https://upload.wikimedia.org/wikipedia/commons/8/8c/Filled_Moon_icon.svg"; // moon icon
+    const defaultFaviconURL = favicon.href;
 
-    // Load saved dark mode preference
-    if (localStorage.getItem("darkMode") === "true") {
-      enableDarkMode();
-      darkModeToggle.checked = true;
-    }
+    // Open modal with animation
+    openSettingsBtn.addEventListener("click", () => {
+      // Pre-fill inputs with current values
+      pageTitleInput.value = document.title === defaultTitle ? "" : document.title;
+      faviconInput.value = favicon.href === defaultFaviconURL ? "" : favicon.href;
 
-    darkModeToggle.addEventListener("change", () => {
-      if (darkModeToggle.checked) {
-        enableDarkMode();
-      } else {
-        disableDarkMode();
-      }
+      settingsModal.style.display = "flex";
+      // Small timeout for opacity transition
+      setTimeout(() => settingsModal.classList.add("show"), 10);
+      settingsModal.setAttribute("aria-hidden", "false");
     });
 
-    function enableDarkMode() {
-      document.body.classList.add("dark-mode");
-      document.title = darkModeTitle;
-      favicon.href = darkFaviconURL;
-      localStorage.setItem("darkMode", "true");
+    // Close modal with animation
+    function closeModal() {
+      settingsModal.classList.remove("show");
+      settingsModal.setAttribute("aria-hidden", "true");
+      setTimeout(() => {
+        settingsModal.style.display = "none";
+      }, 300);
     }
+    closeSettingsBtn.addEventListener("click", closeModal);
 
-    function disableDarkMode() {
-      document.body.classList.remove("dark-mode");
-      document.title = defaultTitle;
-      favicon.href = defaultFaviconURL;
-      localStorage.setItem("darkMode", "false");
-    }
+    // Apply changes button
+    applySettingsBtn.addEventListener("click", () => {
+      const newTitle = pageTitleInput.value.trim();
+      const newFavicon = faviconInput.value.trim();
+
+      // Change page title or reset to default
+      if (newTitle.length > 0) {
+        document.title = newTitle;
+      } else {
+        document.title = defaultTitle;
+      }
+
+      // Change favicon or reset to default
+      if (newFavicon.length > 0) {
+        favicon.href = newFavicon;
+      } else {
+        favicon.href = defaultFaviconURL;
+      }
+
+      closeModal();
+    });
+
+    // Close modal if clicking outside content
+    settingsModal.addEventListener("click", (e) => {
+      if (e.target === settingsModal) closeModal();
+    });
   </script>
 </body>
 </html>
