@@ -95,7 +95,9 @@
       border-radius: 18px;
       padding: 30px 36px;
       width: 360px;
-      max-width: 90vw;
+      max-width: 90vw;         /* keep inside viewport width */
+      max-height: 80vh;        /* max height 80% viewport height */
+      overflow-y: auto;        /* add vertical scroll if content too tall */
       box-shadow: 0 12px 30px rgba(0,0,0,0.18);
       transform: scale(0.75);
       opacity: 0;
