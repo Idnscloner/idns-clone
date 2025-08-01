@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FakeDNS Portal - The Ultimate Bro Edition</title>
+  <title>FakeDNS Portal Bro Edition</title>
   <link id="favicon" rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/6/6a/Wi-Fi_icon.svg" />
   <style>
-    /* === Body & basics === */
+    /* Basic styling from before */
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       text-align: center;
@@ -15,6 +15,8 @@
       color: #222;
       transition: background-color 0.4s ease, color 0.4s ease;
       user-select: none;
+      overflow-x: hidden;
+      position: relative;
     }
     input[type="text"], input[type="url"] {
       padding: 10px 12px;
@@ -73,7 +75,7 @@
       user-select: none;
     }
 
-    /* === Modal styles === */
+    /* Modal styles */
     #settingsModal {
       position: fixed;
       inset: 0;
@@ -94,9 +96,9 @@
       border-radius: 18px;
       padding: 30px 36px;
       width: 360px;
-      max-width: 90vw;         /* keep inside viewport width */
-      max-height: 80vh;        /* max height 80% viewport height */
-      overflow-y: auto;        /* add vertical scroll if content too tall */
+      max-width: 90vw;
+      max-height: 80vh;
+      overflow-y: auto;
       box-shadow: 0 12px 30px rgba(0,0,0,0.18);
       transform: scale(0.75);
       opacity: 0;
@@ -278,29 +280,14 @@
       user-select: none;
     }
 
-    /* === Dummy filler CSS classes - pumped for line count === */
-    /* This section is just a crazy filler of classes to pump lines for show, bro. No real style effect. */
-    .dummy-class-001 {color:#111;}
-    .dummy-class-002 {color:#222;}
-    .dummy-class-003 {color:#333;}
-    .dummy-class-004 {color:#444;}
-    .dummy-class-005 {color:#555;}
-    .dummy-class-006 {color:#666;}
-    .dummy-class-007 {color:#777;}
-    .dummy-class-008 {color:#888;}
-    .dummy-class-009 {color:#999;}
-    .dummy-class-010 {color:#aaa;}
-    .dummy-class-011 {background:#111;}
-    .dummy-class-012 {background:#222;}
-    .dummy-class-013 {background:#333;}
-    .dummy-class-014 {background:#444;}
-    .dummy-class-015 {background:#555;}
-    .dummy-class-016 {background:#666;}
-    .dummy-class-017 {background:#777;}
-    .dummy-class-018 {background:#888;}
-    .dummy-class-019 {background:#999;}
-    .dummy-class-020 {background:#aaa;}
-    /* ... keep going to dummy-class-200 */
+    /* Particle canvas covers whole screen but behind everything */
+    #particleCanvas {
+      pointer-events: none;
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      z-index: 1;
+      user-select: none;
+    }
   </style>
 </head>
 <body>
@@ -338,7 +325,7 @@
     </div>
     <iframe
       id="donationIframe"
-      src="https://www.paypal.com/donate?hosted_button_id=YOUR_BUTTON_ID"
+      src="https://www.paypal.com/donate?business=luisg990%40gmail.com&no_recurring=0&item_name=Support+the+project&currency_code=USD"
       title="Donate with PayPal"
       sandbox="allow-scripts allow-same-origin allow-forms"
       aria-label="PayPal Donation Form"
@@ -358,7 +345,7 @@
   <!-- Modal -->
   <div id="settingsModal" aria-hidden="true">
     <div id="settingsContent" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
-      <h2 id="settingsTitle">Customize Page & Dark Mode</h2>
+      <h2 id="settingsTitle">Customize Page & Dark Mode & Particles</h2>
 
       <label for="pageTitleInput">Page Title</label>
       <input type="text" id="pageTitleInput" placeholder="Enter new page title" />
@@ -369,6 +356,11 @@
       <label class="toggle-switch" for="darkModeToggle">
         <input type="checkbox" id="darkModeToggle" />
         <span>Enable Dark Mode</span>
+      </label>
+
+      <label class="toggle-switch" for="particleToggle" style="margin-top: 20px;">
+        <input type="checkbox" id="particleToggle" />
+        <span>Enable Particle Effects</span>
       </label>
 
       <label for="panicKeyInput" style="margin-top: 22px; text-align: left; font-weight: 600; display: block; font-size: 0.95rem;">
@@ -386,14 +378,17 @@
     </div>
   </div>
 
+  <!-- Particle canvas -->
+  <canvas id="particleCanvas"></canvas>
+
   <script>
-    // Utility to check if a string looks like a URL
+    // Validate URLs quick check
     function isValidURL(str) {
       const pattern = /^(https?:\/\/|www\.)[^\s]+$/i;
       return pattern.test(str);
     }
 
-    // Form submit to open domain or DuckDuckGo search fallback
+    // Form submit to open domain or DuckDuckGo fallback
     document.getElementById('customDomainForm').addEventListener('submit', function (e) {
       e.preventDefault();
       let input = document.getElementById('customDomainInput').value.trim();
@@ -404,12 +399,11 @@
       if (isValidURL(input)) {
         window.open(input, '_blank');
       } else {
-        // fallback to DuckDuckGo search
         window.open('https://duckduckgo.com/?q=' + encodeURIComponent(input), '_blank');
       }
     });
 
-    // Settings modal logic
+    // Settings modal open/close
     const settingsModal = document.getElementById('settingsModal');
     const openSettingsBtn = document.getElementById('openSettingsBtn');
     const closeSettingsBtn = document.getElementById('closeSettings');
@@ -418,10 +412,12 @@
     openSettingsBtn.addEventListener('click', () => {
       settingsModal.classList.add('show');
       settingsModal.setAttribute('aria-hidden', 'false');
+
       // Load saved settings
       document.getElementById('pageTitleInput').value = localStorage.getItem('customPageTitle') || '';
       document.getElementById('faviconInput').value = localStorage.getItem('customFavicon') || '';
       document.getElementById('darkModeToggle').checked = localStorage.getItem('darkMode') === 'true';
+      document.getElementById('particleToggle').checked = localStorage.getItem('particleEffects') === 'true';
       document.getElementById('panicKeyInput').value = localStorage.getItem('panicKey') || 'P';
       document.getElementById('panicUrlInput').value = localStorage.getItem('panicUrl') || '';
     });
@@ -432,21 +428,18 @@
     });
 
     applySettingsBtn.addEventListener('click', () => {
-      // Save page title
       const pageTitle = document.getElementById('pageTitleInput').value.trim();
       if (pageTitle) {
         document.title = pageTitle;
         localStorage.setItem('customPageTitle', pageTitle);
       }
 
-      // Save favicon
       const faviconUrl = document.getElementById('faviconInput').value.trim();
       if (faviconUrl) {
         document.getElementById('favicon').href = faviconUrl;
         localStorage.setItem('customFavicon', faviconUrl);
       }
 
-      // Save dark mode
       const darkMode = document.getElementById('darkModeToggle').checked;
       if (darkMode) {
         document.body.classList.add('dark-mode');
@@ -455,7 +448,10 @@
       }
       localStorage.setItem('darkMode', darkMode);
 
-      // Save panic key and URL
+      const particleEffects = document.getElementById('particleToggle').checked;
+      localStorage.setItem('particleEffects', particleEffects);
+      toggleParticles(particleEffects);
+
       let panicKey = document.getElementById('panicKeyInput').value.toUpperCase();
       if (!panicKey.match(/^[A-Z0-9]$/)) {
         panicKey = 'P';
@@ -470,7 +466,7 @@
       settingsModal.setAttribute('aria-hidden', 'true');
     });
 
-    // Apply settings on page load
+    // Load settings on page load
     window.addEventListener('load', () => {
       const pageTitle = localStorage.getItem('customPageTitle');
       if (pageTitle) document.title = pageTitle;
@@ -481,7 +477,9 @@
       const darkMode = localStorage.getItem('darkMode') === 'true';
       if (darkMode) document.body.classList.add('dark-mode');
 
-      // Panic key redirect
+      const particleEffects = localStorage.getItem('particleEffects') === 'true';
+      toggleParticles(particleEffects);
+
       const panicKey = localStorage.getItem('panicKey') || 'P';
       const panicUrl = localStorage.getItem('panicUrl') || 'https://duckduckgo.com';
 
@@ -492,95 +490,82 @@
       });
     });
 
-    // Donation iframe src fix for your paypal.me
-    // Since paypal.me refuses to be embedded in iframe,
-    // we use a small trick: open paypal.me link externally
-    // The iframe here just shows a blank message.
+    // === PAYPAL DONATION BUTTON BACK BABY ===
+    // Using PayPal donate button iframe with business param (email obfuscated here):
+    // I swapped your paypal.me to the business email param (luisg990@gmail.com) for legit donation form.
+    // NO embedding restrictions here, this is legit PayPal donate embed.
 
-    const donationIframe = document.getElementById('donationIframe');
-    donationIframe.srcdoc = `
-      <style>body{font-family:sans-serif;display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;margin:0;background:#f9f9f9;color:#222;}button{padding:12px 24px;font-size:1.2rem;border:none;border-radius:8px;background:#007bff;color:#fff;cursor:pointer;transition:background 0.3s;}button:hover{background:#0056b3;} </style>
-      <div>
-        <p>Hey bro! PayPal.me doesn’t allow embedding like this. Click below to donate:</p>
-        <button onclick="window.open('https://paypal.me/luisg990', '_blank')">Donate Now 💸</button>
-      </div>
-    `;
+    // No extra JS needed, iframe is already in the HTML with src as below:
+    // https://www.paypal.com/donate?business=luisg990%40gmail.com&no_recurring=0&item_name=Support+the+project&currency_code=USD
 
-    // === CRAZY filler JS functions for line count, bro ===
+    // === PARTICLE EFFECTS CODE ===
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let animationId = null;
+    let particleCount = 75;
+    let particleSize = 4;
 
-    function fillerFunction001() {
-      for (let i = 0; i < 100; i++) {
-        console.log(`Filler function 001: Line ${i} - stay awesome bro!`);
+    function randomRange(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function createParticles() {
+      particles = [];
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: randomRange(0, window.innerWidth),
+          y: randomRange(0, window.innerHeight),
+          vx: randomRange(-0.3, 0.3),
+          vy: randomRange(-0.3, 0.3),
+          size: randomRange(2, particleSize),
+          alpha: randomRange(0.1, 0.8)
+        });
       }
     }
-    function fillerFunction002() {
-      let total = 0;
-      for (let i = 0; i < 200; i++) {
-        total += i * 3;
-      }
-      return total;
-    }
-    function fillerFunction003() {
-      let arr = [];
-      for (let i = 0; i < 50; i++) {
-        arr.push(i * 2);
-      }
-      return arr;
-    }
-    function fillerFunction004() {
-      let str = "";
-      for (let i = 0; i < 100; i++) {
-        str += "x";
-      }
-      return str;
-    }
-    function fillerFunction005() {
-      let obj = {};
-      for (let i = 0; i < 100; i++) {
-        obj[`key${i}`] = i * i;
-      }
-      return obj;
-    }
-    function fillerFunction006() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction007() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction008() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction009() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction010() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction011() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction012() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction013() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction014() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction015() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction016() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction017() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction018() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction019() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction020() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction021() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction022() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction023() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction024() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction025() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction026() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction027() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction028() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction029() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction030() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction031() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction032() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction033() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction034() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction035() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction036() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction037() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction038() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction039() { for(let i=0;i<100;i++){console.log(i);} }
-    function fillerFunction040() { for(let i=0;i<100;i++){console.log(i);} }
-    // add more filler functions as needed... total about 70 filler functions will push you over 1000 lines bro.
 
-    // Just calling these so they don’t get removed by optimizers or smth
-    [fillerFunction001, fillerFunction002, fillerFunction003, fillerFunction004, fillerFunction005].forEach(fn => fn());
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
 
+    function drawParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(0, 123, 255, ${p.alpha})`;
+        ctx.shadowColor = 'rgba(0,123,255,0.9)';
+        ctx.shadowBlur = 12;
+        ctx.arc(p.x, p.y, p.size, 0, 2 * Math.PI);
+        ctx.fill();
+
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // Bounce edges
+        if (p.x <= 0 || p.x >= canvas.width) p.vx *= -1;
+        if (p.y <= 0 || p.y >= canvas.height) p.vy *= -1;
+      });
+      animationId = requestAnimationFrame(drawParticles);
+    }
+
+    function toggleParticles(enable) {
+      if (enable) {
+        resizeCanvas();
+        createParticles();
+        drawParticles();
+        canvas.style.display = 'block';
+      } else {
+        if (animationId) cancelAnimationFrame(animationId);
+        canvas.style.display = 'none';
+      }
+    }
+
+    window.addEventListener('resize', () => {
+      if (localStorage.getItem('particleEffects') === 'true') {
+        resizeCanvas();
+      }
+    });
   </script>
 </body>
 </html>
