@@ -2,16 +2,74 @@
 <html>
 <head>
   <title>Wi-Fi Access Portal</title>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 40px;
+      background-color: #f2f2f2;
+    }
+    input[type="text"] {
+      padding: 10px;
+      width: 60%;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 6px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .section {
+      margin-top: 30px;
+    }
+  </style>
 </head>
 <body>
-  <h1>📶 You're Online!</h1>
-  <p>Welcome to the internet, bro 😤</p>
-  <ul>
-    <li><a href="https://www.google.com">Google</a></li>
-    <li><a href="https://www.youtube.com">YouTube</a></li>
-    <li><a href="https://open.spotify.com">Spotify</a></li>
-    <li><a href="https://chat.openai.com">ChatGPT 😎</a></li>
-  </ul>
+  <h1>📶 FreakDNS Portal</h1>
+  <p>You’re connected, bro. Choose a site or enter your own domain below. If all else fails, smash the 🔥 fallback button.</p>
+
+  <div class="section">
+    <form id="customDomainForm">
+      <input type="text" id="customDomainInput" placeholder="Enter a domain (e.g., google.com)">
+      <br>
+      <button type="submit">Open Domain</button>
+    </form>
+  </div>
+
+  <div class="section">
+    <h2>Quick Links (Open in New Tab)</h2>
+    <button onclick="window.open('https://www.google.com', '_blank')">Google</button>
+    <button onclick="window.open('https://www.youtube.com', '_blank')">YouTube</button>
+    <button onclick="window.open('https://open.spotify.com', '_blank')">Spotify</button>
+    <button onclick="window.open('https://chat.openai.com', '_blank')">ChatGPT</button>
+  </div>
+
+  <div class="section">
+    <h2>🚨 Fallback Button</h2>
+    <button onclick="window.location.href='https://us.idnsportal.com'">Go to iDNSPortal (if this breaks)</button>
+  </div>
+
+  <script>
+    document.getElementById("customDomainForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+      let domain = document.getElementById("customDomainInput").value.trim();
+      if (domain) {
+        if (!domain.startsWith("http://") && !domain.startsWith("https://")) {
+          domain = "https://" + domain;
+        }
+        window.location.href = domain;
+      }
+    });
+  </script>
 </body>
 </html>
