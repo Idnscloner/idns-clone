@@ -553,91 +553,78 @@
       window.open("https://paypal.me/coolfreakbob", "_blank");
     });
 
-    // ==== Snow Effect ====
-
-    const canvas = document.getElementById("snow-canvas");
-    const ctx = canvas.getContext("2d");
-    let width, height;
-    let snowflakes = [];
-    let snowAnimId = null;
-    let snowActive = false;
-
-    function resizeCanvas() {
-      width = window.innerWidth;
-      height = window.innerHeight;
-      canvas.width = width;
-      canvas.height = height;
+    // Updated Snowflake class with color logic based on dark mode state
+class Snowflake {
+  constructor() {
+    this.reset();
+  }
+  reset() {
+    this.x = Math.random() * width;
+    this.y = Math.random() * height;
+    this.radius = 1 + Math.random() * 3;
+    this.speed = 0.5 + Math.random() * 1.2;
+    this.wind = (Math.random() - 0.5) * 0.5;
+    this.opacity = 0.3 + Math.random() * 0.7;
+  }
+  update() {
+    this.y += this.speed;
+    this.x += this.wind;
+    if (this.y > height) {
+      this.y = 0;
+      this.x = Math.random() * width;
     }
+    if (this.x > width) this.x = 0;
+    else if (this.x < 0) this.x = width;
+  }
+  draw() {
+    // Choose color depending on dark mode
+    const isDark = document.body.classList.contains("dark-mode");
+    // Snow color for dark mode: white (with opacity)
+    // For light mode: dark grey/black (lower opacity)
+    const color = isDark
+      ? `rgba(255, 255, 255, ${this.opacity})`
+      : `rgba(30, 30, 30, ${this.opacity * 0.8})`;
+    ctx.beginPath();
+    ctx.fillStyle = color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 3;
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
 
-    // Snowflake constructor
-    class Snowflake {
-      constructor() {
-        this.reset();
-      }
-      reset() {
-        this.x = Math.random() * width;
-        this.y = Math.random() * height;
-        this.radius = 1 + Math.random() * 3;
-        this.speed = 0.5 + Math.random() * 1.2;
-        this.wind = (Math.random() - 0.5) * 0.5;
-        this.opacity = 0.3 + Math.random() * 0.7;
-      }
-      update() {
-        this.y += this.speed;
-        this.x += this.wind;
-        if (this.y > height) {
-          this.y = 0;
-          this.x = Math.random() * width;
-        }
-        if (this.x > width) this.x = 0;
-        else if (this.x < 0) this.x = width;
-      }
-      draw() {
-        ctx.beginPath();
-        ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
-        ctx.shadowColor = "white";
-        ctx.shadowBlur = 3;
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
+// In your loadSettings() function, fix dark mode initialization so
+// it actually applies the dark-mode class BEFORE starting snow:
+function loadSettings() {
+  const darkMode = localStorage.getItem("darkMode") === "true";
+  const customTitle = localStorage.getItem("customTitle") || "";
+  const customFavicon = localStorage.getItem("customFavicon") || "";
+  const panicKey = localStorage.getItem("panicKey") || "P";
+  const panicUrl = localStorage.getItem("panicUrl") || "https://portal.austinisd.org";
+  const snowEnabled = localStorage.getItem("snowEnabled") === "true";
 
-    function createSnowflakes(count = 120) {
-      snowflakes = [];
-      for (let i = 0; i < count; i++) {
-        snowflakes.push(new Snowflake());
-      }
-    }
+  // Apply dark mode class right away
+  if (darkMode) {
+    document.body.classList.add("dark-mode");
+    darkModeToggle.checked = true;
+  } else {
+    document.body.classList.remove("dark-mode");
+    darkModeToggle.checked = false;
+  }
 
-    function animateSnow() {
-      ctx.clearRect(0, 0, width, height);
-      for (const flake of snowflakes) {
-        flake.update();
-        flake.draw();
-      }
-      snowAnimId = requestAnimationFrame(animateSnow);
-    }
+  if (customTitle) {
+    document.title = customTitle;
+    pageTitleInput.value = customTitle;
+  }
+  if (customFavicon) {
+    favicon.href = customFavicon;
+    faviconInput.value = customFavicon;
+  }
 
-    function startSnow() {
-      if (snowActive) return;
-      snowActive = true;
-      resizeCanvas();
-      createSnowflakes(120);
-      animateSnow();
-      window.addEventListener("resize", resizeCanvas);
-    }
+  panicKeyInput.value = panicKey.toUpperCase();
+  panicUrlInput.value = panicUrl;
 
-    function stopSnow() {
-      snowActive = false;
-      cancelAnimationFrame(snowAnimId);
-      ctx.clearRect(0, 0, width, height);
-      window.removeEventListener("resize", resizeCanvas);
-    }
-
-    // On load: load settings and start snow if enabled
-    window.addEventListener("load", () => {
-      loadSettings();
-    });
-  </script>
-</body>
-</html>
+  snowToggle.checked = snowEnabled;
+  if (snowEnabled) startSnow();
+  else stopSnow();
+}
