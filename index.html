@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Wi-Fi Configuration Utility</title>
   <link id="favicon" rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/6/6a/Wi-Fi_icon.svg" />
-
   <style>
     /* === Body & basics === */
     body {
@@ -253,7 +252,7 @@
 
   <div class="section">
     <form id="customDomainForm">
-      <input type="text" id="customDomainInput" placeholder="Enter a domain (e.g., google.com)" />
+      <input type="text" id="customDomainInput" placeholder="Enter a domain or search (e.g., google.com or labubu)" autocomplete="off" />
       <br />
       <button type="submit">Open Domain</button>
     </form>
@@ -317,18 +316,44 @@
   </div>
 
   <script>
+    // Smart URL or DuckDuckGo Search detection
+    function isValidURL(str) {
+      const urlPattern = /^(https?:\/\/|www\.)[^\s]+$/i;
+      const tldPattern = /\.[a-z]{2,}$/i;
+      return urlPattern.test(str) || tldPattern.test(str);
+    }
+
     // Custom Domain Form submit
     document.getElementById("customDomainForm").addEventListener("submit", function(event) {
       event.preventDefault();
-      let domain = document.getElementById("customDomainInput").value.trim();
-      if (domain) {
-        if (!domain.startsWith("http://") && !domain.startsWith("https://")) {
-          domain = "https://" + domain;
+      let input = document.getElementById("customDomainInput").value.trim();
+      if (!input) return;
+
+      // Detect ctrl/cmd pressed for opening in new tab
+      const ctrlPressed = event.ctrlKey || event.metaKey;
+
+      if (!isValidURL(input)) {
+        const searchUrl = `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
+        if (ctrlPressed) {
+          window.open(searchUrl, "_blank");
+        } else {
+          window.location.href = searchUrl;
         }
-        window.location.href = domain;
+        return;
+      }
+
+      if (!input.startsWith("http://") && !input.startsWith("https://")) {
+        input = "https://" + input;
+      }
+
+      if (ctrlPressed) {
+        window.open(input, "_blank");
+      } else {
+        window.location.href = input;
       }
     });
 
+    // SETTINGS MODAL CODE
     const openSettingsBtn = document.getElementById("openSettingsBtn");
     const settingsModal = document.getElementById("settingsModal");
     const closeSettingsBtn = document.getElementById("closeSettings");
@@ -408,20 +433,7 @@
       let panicKey = panicKeyInput.value.trim().toUpperCase();
       let panicUrl = panicUrlInput.value.trim();
 
-      // Validate panic key (one letter or digit)
-      if (!panicKey.match(/^[A-Z0-9]$/)) {
-        panicKey = "P"; // fallback default
-        panicKeyInput.value = panicKey;
-      }
-
-      // Validate panic URL (basic check)
-      if (!panicUrl.match(/^https?:\/\/.+/)) {
-        panicUrl = "https://portal.austinisd.org"; // fallback default
-        panicUrlInput.value = panicUrl;
-      }
-
-      // Title
-      if (newTitle.length > 0) {
+      if (newTitle) {
         document.title = newTitle;
         localStorage.setItem("customTitle", newTitle);
       } else {
@@ -429,8 +441,7 @@
         localStorage.removeItem("customTitle");
       }
 
-      // Favicon
-      if (newFavicon.length > 0) {
+      if (newFavicon) {
         favicon.href = newFavicon;
         localStorage.setItem("customFavicon", newFavicon);
       } else {
@@ -438,34 +449,37 @@
         localStorage.removeItem("customFavicon");
       }
 
-      // Dark mode toggle
-      if (darkModeEnabled) {
-        enableDarkMode();
+      if (darkModeEnabled) enableDarkMode();
+      else disableDarkMode();
+
+      // Validate panic key — must be single alphanumeric char or empty
+      if (/^[A-Z0-9]$/.test(panicKey)) {
+        localStorage.setItem("panicKey", panicKey);
       } else {
-        disableDarkMode();
+        panicKey = "P";
+        localStorage.setItem("panicKey", panicKey);
+        panicKeyInput.value = panicKey;
       }
 
-      // Save panic key & url
-      localStorage.setItem("panicKey", panicKey);
-      localStorage.setItem("panicUrl", panicUrl);
+      // Validate panic URL (simple check)
+      if (panicUrl && /^https?:\/\//.test(panicUrl)) {
+        localStorage.setItem("panicUrl", panicUrl);
+      } else {
+        panicUrl = "https://portal.austinisd.org";
+        localStorage.setItem("panicUrl", panicUrl);
+        panicUrlInput.value = panicUrl;
+      }
 
+      alert("Settings saved, bro! 🔥");
       closeModal();
     });
 
-    // Panic key listener for redirect
-    document.addEventListener("keydown", (e) => {
-      // Ignore if focus is on an input or textarea so user can type normally
-      const activeEl = document.activeElement;
-      if (activeEl && (activeEl.tagName === "INPUT" || activeEl.tagName === "TEXTAREA")) {
-        return;
-      }
-
+    // Panic key listener — redirects to panic URL instantly
+    document.addEventListener("keydown", e => {
       const panicKey = localStorage.getItem("panicKey") || "P";
       const panicUrl = localStorage.getItem("panicUrl") || "https://portal.austinisd.org";
 
-      // Check if pressed key matches panic key (case-insensitive)
-      if (e.key.toUpperCase() === panicKey.toUpperCase()) {
-        // Redirect immediately
+      if (e.key.toUpperCase() === panicKey) {
         window.location.href = panicUrl;
       }
     });
