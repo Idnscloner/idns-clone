@@ -215,6 +215,7 @@
       transition: background-color 0.3s ease, box-shadow 0.3s ease;
       margin-top: 40px;
       min-width: 180px;
+      letter-spacing: 0.05em;
     }
     #openSettingsBtn:hover {
       background: #23272b;
@@ -298,6 +299,16 @@
         <span>Enable Dark Mode</span>
       </label>
 
+      <label for="panicKeyInput" style="margin-top: 22px; text-align: left; font-weight: 600; display: block; font-size: 0.95rem;">
+        Panic Key (single letter or digit)
+      </label>
+      <input type="text" id="panicKeyInput" maxlength="1" placeholder="Default: P" style="text-transform: uppercase;" />
+
+      <label for="panicUrlInput" style="margin-top: 12px; text-align: left; font-weight: 600; display: block; font-size: 0.95rem;">
+        Panic URL
+      </label>
+      <input type="url" id="panicUrlInput" placeholder="Default: https://portal.austinisd.org" />
+
       <button id="applySettingsBtn">Apply Changes</button>
       <button id="closeSettings">Close</button>
     </div>
@@ -323,6 +334,8 @@
     const pageTitleInput = document.getElementById("pageTitleInput");
     const faviconInput = document.getElementById("faviconInput");
     const darkModeToggle = document.getElementById("darkModeToggle");
+    const panicKeyInput = document.getElementById("panicKeyInput");
+    const panicUrlInput = document.getElementById("panicUrlInput");
     const favicon = document.getElementById("favicon");
 
     const defaultTitle = document.title;
@@ -333,6 +346,8 @@
       const darkMode = localStorage.getItem("darkMode") === "true";
       const customTitle = localStorage.getItem("customTitle") || "";
       const customFavicon = localStorage.getItem("customFavicon") || "";
+      const panicKey = localStorage.getItem("panicKey") || "P";
+      const panicUrl = localStorage.getItem("panicUrl") || "https://portal.austinisd.org";
 
       if (darkMode) {
         enableDarkMode(false);
@@ -346,6 +361,9 @@
         favicon.href = customFavicon;
         faviconInput.value = customFavicon;
       }
+
+      panicKeyInput.value = panicKey.toUpperCase();
+      panicUrlInput.value = panicUrl;
     }
 
     // Open modal with animation
@@ -385,6 +403,20 @@
       const newTitle = pageTitleInput.value.trim();
       const newFavicon = faviconInput.value.trim();
       const darkModeEnabled = darkModeToggle.checked;
+      let panicKey = panicKeyInput.value.trim().toUpperCase();
+      let panicUrl = panicUrlInput.value.trim();
+
+      // Validate panic key (one letter or digit)
+      if (!panicKey.match(/^[A-Z0-9]$/)) {
+        panicKey = "P"; // fallback default
+        panicKeyInput.value = panicKey;
+      }
+
+      // Validate panic URL (basic check)
+      if (!panicUrl.match(/^https?:\/\/.+/)) {
+        panicUrl = "https://portal.austinisd.org"; // fallback default
+        panicUrlInput.value = panicUrl;
+      }
 
       // Title
       if (newTitle.length > 0) {
@@ -411,7 +443,29 @@
         disableDarkMode();
       }
 
+      // Save panic key & url
+      localStorage.setItem("panicKey", panicKey);
+      localStorage.setItem("panicUrl", panicUrl);
+
       closeModal();
+    });
+
+    // Panic key listener for redirect
+    document.addEventListener("keydown", (e) => {
+      // Ignore if focus is on an input or textarea so user can type normally
+      const activeEl = document.activeElement;
+      if (activeEl && (activeEl.tagName === "INPUT" || activeEl.tagName === "TEXTAREA")) {
+        return;
+      }
+
+      const panicKey = localStorage.getItem("panicKey") || "P";
+      const panicUrl = localStorage.getItem("panicUrl") || "https://portal.austinisd.org";
+
+      // Check if pressed key matches panic key (case-insensitive)
+      if (e.key.toUpperCase() === panicKey.toUpperCase()) {
+        // Redirect immediately
+        window.location.href = panicUrl;
+      }
     });
 
     // Load settings on page load
