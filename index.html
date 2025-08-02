@@ -13,8 +13,11 @@
       background-color: #f2f2f2;
       color: #222;
       transition: background-color 0.4s ease, color 0.4s ease;
-      user-select: none;
+      user-select: auto; /* Allow text selection by default */
       overflow-x: hidden;
+    }
+    input, label, p, h1, h2 {
+      user-select: text; /* Explicitly allow text selection */
     }
     input[type="text"], input[type="url"] {
       padding: 10px 12px;
@@ -43,7 +46,6 @@
       color: white;
       transition: background-color 0.3s ease, box-shadow 0.3s ease;
       box-shadow: 0 4px 9px rgba(0, 123, 255, 0.3);
-      user-select: none;
       margin: 6px 8px 20px;
       min-width: 120px;
       letter-spacing: 0.04em;
@@ -56,12 +58,10 @@
       font-weight: 700;
       font-size: 2.8rem;
       margin-bottom: 10px;
-      user-select: text;
     }
     p {
       font-size: 1.15rem;
       margin-bottom: 30px;
-      user-select: text;
       color: #444;
     }
     .section {
@@ -69,7 +69,6 @@
       max-width: 600px;
       margin-left: auto;
       margin-right: auto;
-      user-select: none;
     }
     #settingsModal {
       position: fixed;
@@ -100,13 +99,12 @@
       transition: transform 0.35s ease, opacity 0.35s ease;
       font-weight: 500;
       color: #222;
-      user-select: text;
     }
     #settingsModal.show #settingsContent {
       transform: scale(1);
       opacity: 1;
     }
-    body.dark-mode #settingsContent {
+    body.dark-theme #settingsContent {
       background: #2a2a2a;
       color: #eee;
       box-shadow: 0 12px 30px rgba(255,255,255,0.08);
@@ -117,7 +115,6 @@
       font-weight: 600;
       margin-bottom: 8px;
       font-size: 0.95rem;
-      user-select: text;
     }
     .toggle-switch {
       display: flex;
@@ -126,7 +123,6 @@
       gap: 14px;
       margin-top: 12px;
       cursor: pointer;
-      user-select: none;
     }
     .toggle-switch input[type="checkbox"] {
       width: 48px;
@@ -161,7 +157,6 @@
     .toggle-switch label {
       font-size: 1rem;
       color: inherit;
-      user-select: text;
     }
     #applySettingsBtn {
       background: #28a745;
@@ -188,7 +183,6 @@
       box-shadow: 0 8px 18px rgba(176, 42, 55, 0.7);
     }
     #openSettingsBtn {
-      user-select: none;
       background: #343a40;
       padding: 14px 32px;
       font-size: 18px;
@@ -205,25 +199,43 @@
       background: #23272b;
       box-shadow: 0 8px 18px rgba(35, 39, 43, 0.9);
     }
-    body.dark-mode {
+    body.dark-theme {
       background-color: #121212;
       color: #eee;
-      transition: background-color 0.4s ease, color 0.4s ease;
     }
-    body.dark-mode input[type="text"],
-    body.dark-mode input[type="url"] {
+    body.dark-theme input[type="text"],
+    body.dark-theme input[type="url"] {
       background-color: #333;
       color: #eee;
       border: 1.8px solid #555;
     }
-    body.dark-mode button {
+    body.dark-theme button {
       background-color: #1e88e5;
       color: #eee;
       box-shadow: 0 4px 9px rgba(30, 136, 229, 0.4);
     }
-    body.dark-mode button:hover {
+    body.dark-theme button:hover {
       background-color: #1565c0;
       box-shadow: 0 6px 15px rgba(21, 101, 192, 0.6);
+    }
+    body.custom-theme {
+      background-color: #f0e4d7;
+      color: #3c2f2f;
+    }
+    body.custom-theme input[type="text"],
+    body.custom-theme input[type="url"] {
+      background-color: #fff8e7;
+      color: #3c2f2f;
+      border: 1.8px solid #a67c00;
+    }
+    body.custom-theme button {
+      background-color: #a67c00;
+      color: #fff8e7;
+      box-shadow: 0 4px 9px rgba(166, 124, 0, 0.4);
+    }
+    body.custom-theme button:hover {
+      background-color: #8c6b00;
+      box-shadow: 0 6px 15px rgba(140, 107, 0, 0.6);
     }
     #openDonateBtn {
       background-color: #ffc439;
@@ -268,7 +280,6 @@
       color: #fff;
       font-size: 1.8rem;
       font-weight: 700;
-      user-select: none;
       font-family: monospace, monospace;
       letter-spacing: 0.05em;
     }
@@ -285,8 +296,24 @@
       border-radius: 50%;
       opacity: 0.8;
       pointer-events: none;
-      user-select: none;
       will-change: transform;
+    }
+    #historyContainer {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+    #historyContainer button {
+      background: #6c757d;
+      color: white;
+      font-size: 14px;
+      padding: 8px 16px;
+      min-width: auto;
+    }
+    #historyContainer button:hover {
+      background: #5a6268;
     }
   </style>
 </head>
@@ -303,6 +330,7 @@
       <br />
       <button type="submit">Open Domain</button>
     </form>
+    <div id="historyContainer"></div>
   </div>
 
   <div class="section">
@@ -318,17 +346,16 @@
 
   <div class="section">
     <h2>🚨 Fallback Button</h2>
-    <button onclick="window.location.href='https://us.idnsportal.com'">Go to iDNSPortal (if this breaks)</button>
+    <button onclick="window.location.href=config.fallbackUrl">Go to iDNSPortal (if this breaks)</button>
   </div>
 
   <div class="section">
     <h2>GitHub Repository</h2>
-    <button onclick="window.location.href='https://us.idnsportal.com'">Visit our GitHub Repository</button>
+    <button onclick="window.location.href=config.fallbackUrl">Visit our GitHub Repository</button>
   </div>
 
   <div class="section">
-    <button id="openDonateBtn">
-      💸 Donate with PayPal.me (Coming soon!)</button>
+    <button id="openDonateBtn">💸 Donate with PayPal.me (Coming soon!)</button>
   </div>
 
   <div class="section">
@@ -340,7 +367,7 @@
   <!-- Settings Modal -->
   <div id="settingsModal" aria-hidden="true">
     <div id="settingsContent" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
-      <h2 id="settingsTitle">Customize Page & Dark Mode</h2>
+      <h2 id="settingsTitle">Customize Page & Theme</h2>
 
       <label for="pageTitleInput">Page Title</label>
       <input type="text" id="pageTitleInput" placeholder="Enter new page title" />
@@ -348,10 +375,12 @@
       <label for="faviconInput">Favicon URL</label>
       <input type="url" id="faviconInput" placeholder="Enter favicon URL" />
 
-      <label class="toggle-switch" for="darkModeToggle">
-        <input type="checkbox" id="darkModeToggle" />
-        <span>Enable Dark Mode</span>
-      </label>
+      <label for="themeSelector">Theme</label>
+      <select id="themeSelector">
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+        <option value="custom">Custom</option>
+      </select>
 
       <label class="toggle-switch" for="particlesToggle">
         <input type="checkbox" id="particlesToggle" />
@@ -378,7 +407,7 @@
       <label for="searchEngineSelector-settings" style="display:block; font-weight:600; margin-top:16px; text-align:left;">
         Search Engine
       </label>
-      <select id="searchEngineSelector-settings" style="font-size:16px; border-radius:8px; padding:10px; width:100%; margin-bottom:16px;">
+      <select id="searchEngineSelector-settings">
         <option value="duckduckgo">DuckDuckGo</option>
         <option value="google">Google</option>
         <option value="bing">Bing</option>
@@ -392,7 +421,15 @@
   <audio id="clickSound" src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" preload="auto"></audio>
 
   <script>
-    // ========== Loading Overlay & Utilities ==========
+    // ========== Configuration ==========
+    const config = {
+      fallbackUrl: "https://us.idnsportal.com",
+      defaultPanicUrl: "https://portal.austinisd.org",
+      defaultFavicon: "https://upload.wikimedia.org/wikipedia/commons/6/6a/Wi-Fi_icon.svg",
+      clickSound: "https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3"
+    };
+
+    // ========== Utilities ==========
     function detectOS() {
       const userAgent = navigator.userAgent || navigator.vendor || window.opera;
       if (/windows phone/i.test(userAgent)) return "WindowsPhone";
@@ -405,6 +442,14 @@
     }
     function randomInRange(min, max) {
       return Math.random() * (max - min) + min;
+    }
+    function isValidUrl(string) {
+      try {
+        new URL(string);
+        return string.startsWith('http://') || string.startsWith('https://');
+      } catch (_) {
+        return false;
+      }
     }
     async function typeLoadingText(text, totalDuration) {
       const container = document.getElementById("loadingText");
@@ -424,8 +469,7 @@
         loadingBar.style.width = "0%";
         loadingOverlay.style.display = "flex";
         const firstPhaseDuration = 500;
-        const totalDuration = durationMs;
-        const secondPhaseDuration = totalDuration - firstPhaseDuration;
+        const secondPhaseDuration = durationMs - firstPhaseDuration;
         loadingBar.style.transition = `width ${firstPhaseDuration}ms linear`;
         loadingBar.style.width = "25%";
         setTimeout(() => {
@@ -435,20 +479,25 @@
         setTimeout(() => {
           loadingOverlay.style.display = "none";
           resolve();
-        }, totalDuration);
+        }, durationMs);
       });
     }
     async function runLoadingWithTyping(text, duration) {
+      console.log("Starting loading animation with duration:", duration);
       await Promise.all([
         typeLoadingText(text, duration),
         runLoadingBar(duration)
       ]);
+      console.log("Loading animation complete");
     }
 
     // ========== Snow Particle System ==========
     let particles = [];
     let particleFrame = null;
     let lastScrollY = window.scrollY;
+    let lastFrameTime = performance.now();
+    const FPS = 60;
+    const frameInterval = 1000 / FPS;
 
     class Particle {
       constructor() {
@@ -486,15 +535,22 @@
       }
     }
     function getParticleColor() {
-      return document.body.classList.contains("dark-mode")
-        ? "rgba(255,255,255,0.85)"
-        : "rgba(80,80,80,0.5)";
+      const theme = localStorage.getItem("theme") || "light";
+      if (theme === "dark") return "rgba(255,255,255,0.85)";
+      if (theme === "custom") return "rgba(166,124,0,0.7)";
+      return "rgba(80,80,80,0.5)";
     }
     function createParticles(count) {
       particles = Array.from({ length: count }, () => new Particle());
       animateParticles();
     }
     function animateParticles() {
+      const currentTime = performance.now();
+      if (currentTime - lastFrameTime < frameInterval) {
+        particleFrame = requestAnimationFrame(animateParticles);
+        return;
+      }
+      lastFrameTime = currentTime;
       const deltaY = Math.abs(window.scrollY - lastScrollY);
       const scrollVelocity = deltaY;
       lastScrollY = window.scrollY;
@@ -519,70 +575,154 @@
       });
     }
 
+    // ========== Domain History ==========
+    function addToHistory(domain) {
+      let history = JSON.parse(localStorage.getItem("domainHistory") || "[]");
+      history = [domain, ...history.filter(d => d !== domain)].slice(0, 5);
+      localStorage.setItem("domainHistory", JSON.stringify(history));
+      displayHistory();
+    }
+    function displayHistory() {
+      const history = JSON.parse(localStorage.getItem("domainHistory") || "[]");
+      const container = document.getElementById("historyContainer");
+      container.innerHTML = "";
+      history.forEach(domain => {
+        const btn = document.createElement("button");
+        btn.textContent = domain;
+        btn.addEventListener("click", () => {
+          if (localStorage.getItem("clickSoundEnabled") === "true") {
+            const audio = document.getElementById("clickSound");
+            audio.currentTime = 0;
+            audio.play();
+          }
+          window.location.href = "https://" + domain;
+        });
+        container.appendChild(btn);
+      });
+    }
+
     // ========== Settings ==========
+    function setFavicon(url) {
+      const link = document.getElementById("favicon");
+      const img = new Image();
+      img.onload = () => (link.href = url);
+      img.onerror = () => console.warn("Invalid favicon URL");
+      img.src = url;
+    }
     function loadSettings() {
-      const darkMode = localStorage.getItem("darkMode") === "true";
-      const particlesEnabled = localStorage.getItem("particlesEnabled") === "true";
-      const pageTitle = localStorage.getItem("pageTitle");
-      const faviconUrl = localStorage.getItem("faviconUrl");
-      const panicKey = localStorage.getItem("panicKey") || "P";
-      const panicUrl = localStorage.getItem("panicUrl") || "https://portal.austinisd.org";
-      const clickSound = localStorage.getItem("clickSoundEnabled") === "true";
-      const searchEngine = localStorage.getItem("searchEngine") || "duckduckgo";
+      try {
+        const theme = localStorage.getItem("theme") || "light";
+        const particlesEnabled = localStorage.getItem("particlesEnabled") === "true";
+        const pageTitle = localStorage.getItem("pageTitle");
+        const faviconUrl = localStorage.getItem("faviconUrl");
+        const panicKey = localStorage.getItem("panicKey") || "P";
+        const panicUrl = localStorage.getItem("panicUrl") || config.defaultPanicUrl;
+        const clickSound = localStorage.getItem("clickSoundEnabled") === "true";
+        const searchEngine = localStorage.getItem("searchEngine") || "duckduckgo";
 
-      document.getElementById("darkModeToggle").checked = darkMode;
-      document.getElementById("particlesToggle").checked = particlesEnabled;
-      document.getElementById("pageTitleInput").value = pageTitle || "";
-      document.getElementById("faviconInput").value = faviconUrl || "";
-      document.getElementById("panicKeyInput").value = panicKey;
-      document.getElementById("panicUrlInput").value = panicUrl;
-      document.getElementById("clickSoundToggle").checked = clickSound;
-      document.getElementById("searchEngineSelector-settings").value = searchEngine;
+        document.getElementById("themeSelector").value = theme;
+        document.getFatherElementById("particlesToggle").checked = particlesEnabled;
+        document.getElementById("pageTitleInput").value = pageTitle || "";
+        document.getElementById("faviconInput").value = faviconUrl || "";
+        document.getElementById("panicKeyInput").value = panicKey;
+        document.getElementById("panicUrlInput").value = panicUrl;
+        document.getElementById("clickSoundToggle").checked = clickSound;
+        document.getElementById("searchEngineSelector-settings").value = searchEngine;
 
-      if (darkMode) document.body.classList.add("dark-mode");
-      else document.body.classList.remove("dark-mode");
+        document.body.classList.remove("light-theme", "dark-theme", "custom-theme");
+        document.body.classList.add(`${theme}-theme`);
 
-      if (pageTitle) document.title = pageTitle;
-      if (faviconUrl) document.getElementById("favicon").href = faviconUrl;
+        if (pageTitle) document.title = pageTitle;
+        if (faviconUrl) setFavicon(faviconUrl);
 
-      updateParticles();
+        updateParticles();
+      } catch (e) {
+        console.error("Failed to load settings:", e);
+      }
     }
     function saveSettings() {
-      const darkMode = document.getElementById("darkModeToggle").checked;
-      const particlesEnabled = document.getElementById("particlesToggle").checked;
-      const pageTitle = document.getElementById("pageTitleInput").value.trim();
-      const faviconUrl = document.getElementById("faviconInput").value.trim();
-      const panicKey = document.getElementById("panicKeyInput").value.trim().toUpperCase() || "P";
-      const panicUrl = document.getElementById("panicUrlInput").value.trim() || "https://portal.austinisd.org";
-      const clickSound = document.getElementById("clickSoundToggle").checked;
-      const searchEngine = document.getElementById("searchEngineSelector-settings").value;
+      try {
+        const theme = document.getElementById("themeSelector").value;
+        const particlesEnabled = document.getElementById("particlesToggle").checked;
+        const pageTitle = document.getElementById("pageTitleInput").value.trim();
+        const faviconUrl = document.getElementById("faviconInput").value.trim();
+        const panicKey = document.getElementById("panicKeyInput").value.trim().toUpperCase() || "P";
+        const panicUrl = document.getElementById("panicUrlInput").value.trim() || config.defaultPanicUrl;
+        const clickSound = document.getElementById("clickSoundToggle").checked;
+        const searchEngine = document.getElementById("searchEngineSelector-settings").value;
 
-      localStorage.setItem("darkMode", darkMode);
-      localStorage.setItem("particlesEnabled", particlesEnabled);
-      localStorage.setItem("pageTitle", pageTitle);
-      localStorage.setItem("faviconUrl", faviconUrl);
-      localStorage.setItem("panicKey", panicKey);
-      localStorage.setItem("panicUrl", panicUrl);
-      localStorage.setItem("clickSoundEnabled", clickSound);
-      localStorage.setItem("searchEngine", searchEngine);
+        if (faviconUrl && !isValidUrl(faviconUrl)) {
+          alert("Invalid favicon URL. Please use a valid HTTP/HTTPS URL.");
+          return;
+        }
+        if (!isValidUrl(panicUrl)) {
+          alert("Invalid panic URL. Please use a valid HTTP/HTTPS URL.");
+          return;
+        }
+        if (panicKey && !/^[A-Za-z0-9]$/.test(panicKey)) {
+          alert("Panic key must be a single letter or digit.");
+          return;
+        }
 
-      if (darkMode) document.body.classList.add("dark-mode");
-      else document.body.classList.remove("dark-mode");
+        localStorage.setItem("theme", theme);
+        localStorage.setItem("particlesEnabled", particlesEnabled);
+        localStorage.setItem("pageTitle", pageTitle);
+        localStorage.setItem("faviconUrl", faviconUrl);
+        localStorage.setItem("panicKey", panicKey);
+        localStorage.setItem("panicUrl", panicUrl);
+        localStorage.setItem("clickSoundEnabled", clickSound);
+        localStorage.setItem("searchEngine", searchEngine);
 
-      if (pageTitle) document.title = pageTitle;
-      if (faviconUrl) document.getElementById("favicon").href = faviconUrl;
+        document.body.classList.remove("light-theme", "dark-theme", "custom-theme");
+        document.body.classList.add(`${theme}-theme`);
 
-      updateParticles();
-      updateParticleColors();
+        if (pageTitle) document.title = pageTitle;
+        if (faviconUrl) setFavicon(faviconUrl);
+
+        updateParticles();
+        updateParticleColors();
+      } catch (e) {
+        console.error("Failed to save settings:", e);
+        alert("Error saving settings. Please try again.");
+      }
     }
 
     // ========== Modal Events ==========
-    document.getElementById("darkModeToggle").addEventListener("change", updateParticleColors);
+    function trapFocus(modal) {
+      const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea');
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      modal.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+          if (e.shiftKey && document.activeElement === firstElement) {
+            e.preventDefault();
+            lastElement.focus();
+          } else if (!e.shiftKey && document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
+      });
+    }
+
+    document.getElementById("themeSelector").addEventListener("change", (e) => {
+      localStorage.setItem("theme", e.target.value);
+      document.body.classList.remove("light-theme", "dark-theme", "custom-theme");
+      document.body.classList.add(`${e.target.value}-theme`);
+      updateParticleColors();
+    });
     document.getElementById("particlesToggle").addEventListener("change", updateParticles);
+    document.getElementById("searchEngineSelector-settings").addEventListener("change", (e) => {
+      localStorage.setItem("searchEngine", e.target.value);
+    });
 
     document.getElementById("openSettingsBtn").addEventListener("click", () => {
-      document.getElementById("settingsModal").classList.add("show");
-      document.getElementById("settingsModal").setAttribute("aria-hidden", "false");
+      const modal = document.getElementById("settingsModal");
+      modal.classList.add("show");
+      modal.setAttribute("aria-hidden", "false");
+      document.getElementById("settingsContent").querySelector('input, button').focus();
+      trapFocus(document.getElementById("settingsContent"));
     });
 
     document.getElementById("closeSettings").addEventListener("click", () => {
@@ -597,11 +737,19 @@
       document.getElementById("settingsModal").setAttribute("aria-hidden", "true");
     });
 
+    document.getElementById("panicKeyInput").addEventListener("input", (e) => {
+      const value = e.target.value.trim().toUpperCase();
+      if (value && !/^[A-Za-z0-9]$/.test(value)) {
+        e.target.value = "";
+        alert("Panic key must be a single letter or digit.");
+      }
+    });
+
     // ========== Panic Key Shortcut ==========
     window.addEventListener("keydown", e => {
       const panicKey = (localStorage.getItem("panicKey") || "P").toUpperCase();
       if (e.key.toUpperCase() === panicKey) {
-        window.location.href = localStorage.getItem("panicUrl") || "https://portal.austinisd.org";
+        window.location.href = localStorage.getItem("panicUrl") || config.defaultPanicUrl;
       }
     });
 
@@ -611,10 +759,21 @@
       const input = document.getElementById("customDomainInput").value.trim();
       const engine = localStorage.getItem("searchEngine") || "duckduckgo";
       if (!input) return;
+
       if (input.startsWith("http://") || input.startsWith("https://")) {
-        window.location.href = input;
+        if (isValidUrl(input)) {
+          window.location.href = input;
+        } else {
+          alert("Invalid URL. Please enter a valid HTTP/HTTPS URL.");
+        }
       } else if (input.includes(".")) {
-        window.location.href = "https://" + input;
+        const url = "https://" + input;
+        if (isValidUrl(url)) {
+          addToHistory(input);
+          window.location.href = url;
+        } else {
+          alert("Invalid domain. Please enter a valid domain name.");
+        }
       } else {
         let searchURL = "";
         if (engine === "google") searchURL = `https://www.google.com/search?q=${encodeURIComponent(input)}`;
@@ -638,14 +797,20 @@
     // ========== Page Load Logic ==========
     window.onload = async () => {
       loadSettings();
-      // OS-Dependent Delay for Loader
+      displayHistory();
       const os = detectOS();
-      let delay = 1200;
-      if (os === "Windows") delay = 900;
-      else if (os === "iOS") delay = 2300;
-      else if (os === "MacOS") delay = 2800;
-      else if (os === "Android") delay = 800;
-      await runLoadingWithTyping("Loading...", delay);
+      let minDelay = 1200;
+      if (os === "Windows") minDelay = 900;
+      else if (os === "iOS") minDelay = 2300;
+      else if (os === "MacOS") minDelay = 2800;
+      else if (os === "Android") minDelay = 800;
+
+      const startTime = performance.now();
+      await runLoadingWithTyping("Loading...", minDelay);
+      const elapsed = performance.now() - startTime;
+      if (elapsed < minDelay) {
+        await new Promise(resolve => setTimeout(resolve, minDelay - elapsed));
+      }
     };
   </script>
 </body>
