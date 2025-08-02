@@ -12,7 +12,7 @@
       padding: 40px;
       background-color: #f2f2f2;
       color: #222;
-      transition: background-color 0.4s ease, color 0.4s ease;
+      transition: background-color 0.4s ease, color 0.4s ease, opacity 0.1s ease;
       user-select: none;
       overflow-x: hidden;
     }
@@ -272,6 +272,39 @@
       font-family: monospace, monospace;
       letter-spacing: 0.05em;
     }
+    #redirectOverlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #000;
+      opacity: 0.8;
+      z-index: 9998;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      font-size: 1.8rem;
+      font-weight: 700;
+      user-select: none;
+      font-family: monospace, monospace;
+      letter-spacing: 0.05em;
+      flex-direction: column;
+    }
+    #redirectBarContainer {
+      width: 100%;
+      height: 6px;
+      background-color: transparent;
+      position: absolute;
+      bottom: 0;
+    }
+    #redirectBar {
+      height: 100%;
+      width: 0%;
+      background-color: #28a745;
+      transition: width 0.3s ease;
+    }
+    body.redirecting #redirectOverlay {
+      display: flex;
+    }
     #particleContainer {
       pointer-events: none;
       position: fixed;
@@ -288,11 +321,31 @@
       user-select: none;
       will-change: transform;
     }
+    .typing::after {
+      content: "|";
+      display: inline-block;
+      animation: blink 0.7s infinite;
+      font-weight: 700;
+      margin-left: 2px;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    body.dark-mode .typing::after {
+      color: #eee;
+    }
   </style>
 </head>
 <body>
   <div id="loadingOverlay"><span id="loadingText"></span></div>
   <div id="loadingBarContainer"><div id="loadingBar"></div></div>
+  <div id="redirectOverlay" aria-live="polite">
+    <span id="redirectText">Redirecting...</span>
+    <div id="redirectBarContainer">
+      <div id="redirectBar"></div>
+    </div>
+  </div>
 
   <h1>📶 CloneDNS Portal</h1>
   <p>You’re connected and avoiding censorship, bro. Choose a site or enter your own domain below. If all else fails, smash the 🔥 fallback button.</p>
@@ -323,7 +376,7 @@
 
   <div class="section">
     <h2>GitHub Repository</h2>
-    <button onclick="window.location.href='https://github.com/Idnscloner/idns-clone'">Visit our GitHub Repository</button>
+    <button onclick="window.location.href='https://us.idnsportal.com'">Visit our GitHub Repository</button>
   </div>
 
   <div class="section">
@@ -356,6 +409,11 @@
       <label class="toggle-switch" for="particlesToggle">
         <input type="checkbox" id="particlesToggle" />
         <span>Enable Snow Particles</span>
+      </label>
+
+      <label class="toggle-switch" for="typingAnimationToggle">
+        <input type="checkbox" id="typingAnimationToggle" />
+        <span>Enable Typing Animation</span>
       </label>
 
       <label for="panicKeyInput" style="margin-top: 22px; text-align: left; font-weight: 600; display: block; font-size: 0.95rem;">
@@ -406,43 +464,77 @@
     function randomInRange(min, max) {
       return Math.random() * (max - min) + min;
     }
-    async function typeLoadingText(text, totalDuration) {
-      const container = document.getElementById("loadingText");
-      container.textContent = "";
-      const totalChars = text.length;
-      if (totalChars === 0) return;
-      const delayPerChar = totalDuration / totalChars;
-      for (let i = 0; i < totalChars; i++) {
-        container.textContent += text[i];
-        await new Promise(r => setTimeout(r, delayPerChar));
+    async function typeLoadingText(text, totalDuration, container) {
+      try {
+        container.textContent = "";
+        container.classList.add("typing");
+        const totalChars = text.length;
+        if (totalChars === 0) {
+          container.classList.remove("typing");
+          return;
+        }
+        const delayPerChar = totalDuration / totalChars;
+        for (let i = 0; i < totalChars; i++) {
+          container.textContent = text.slice(0, i + 1);
+          await new Promise(r => setTimeout(r, delayPerChar));
+        }
+        container.classList.remove("typing");
+      } catch (err) {
+        console.error("Typing animation failed:", err);
+        container.textContent = text; // Fallback to full text
+        container.classList.remove("typing");
       }
     }
-    function runLoadingBar(durationMs) {
+    function runLoadingBar(durationMs, barId = "loadingBar", overlayId = "loadingOverlay") {
       return new Promise((resolve) => {
-        const loadingBar = document.getElementById("loadingBar");
-        const loadingOverlay = document.getElementById("loadingOverlay");
-        loadingBar.style.width = "0%";
-        loadingOverlay.style.display = "flex";
-        const firstPhaseDuration = 500;
-        const totalDuration = durationMs;
-        const secondPhaseDuration = totalDuration - firstPhaseDuration;
-        loadingBar.style.transition = `width ${firstPhaseDuration}ms linear`;
-        loadingBar.style.width = "25%";
-        setTimeout(() => {
-          loadingBar.style.transition = `width ${secondPhaseDuration}ms ease-in-out`;
-          loadingBar.style.width = "100%";
-        }, firstPhaseDuration);
-        setTimeout(() => {
-          loadingOverlay.style.display = "none";
+        try {
+          const loadingBar = document.getElementById(barId);
+          const loadingOverlay = document.getElementById(overlayId);
+          loadingBar.style.width = "0%";
+          loadingOverlay.style.display = "flex";
+          const firstPhaseDuration = 500;
+          const totalDuration = durationMs;
+          const secondPhaseDuration = totalDuration - firstPhaseDuration;
+          loadingBar.style.transition = `width ${firstPhaseDuration}ms linear`;
+          loadingBar.style.width = "25%";
+          setTimeout(() => {
+            loadingBar.style.transition = `width ${secondPhaseDuration}ms ease-in-out`;
+            loadingBar.style.width = "100%";
+          }, firstPhaseDuration);
+          setTimeout(() => {
+            loadingOverlay.style.display = "none";
+            resolve();
+          }, totalDuration);
+        } catch (err) {
+          console.error("Loading bar failed:", err);
+          document.getElementById(overlayId).style.display = "none";
           resolve();
-        }, totalDuration);
+        }
       });
     }
-    async function runLoadingWithTyping(text, duration) {
+    async function runLoadingWithTyping(text, duration, container = document.getElementById("loadingText"), barId = "loadingBar", overlayId = "loadingOverlay") {
       await Promise.all([
-        typeLoadingText(text, duration),
-        runLoadingBar(duration)
+        typeLoadingText(text, duration, container),
+        runLoadingBar(duration, barId, overlayId)
       ]);
+    }
+    async function runRedirectScreen(url) {
+      try {
+        document.body.classList.add("redirecting");
+        const refreshCount = 3;
+        const refreshDelay = 300;
+        for (let i = 0; i < refreshCount; i++) {
+          await runLoadingWithTyping("Redirecting...", refreshDelay, document.getElementById("redirectText"), "redirectBar", "redirectOverlay");
+          document.body.style.opacity = "0";
+          await new Promise(r => setTimeout(r, 100));
+          document.body.style.opacity = "1";
+        }
+        window.open(url, "_blank");
+        document.body.classList.remove("redirecting");
+      } catch (err) {
+        console.error("Redirect animation failed:", err);
+        window.open(url, "_blank"); // Fallback to direct navigation
+      }
     }
 
     // ========== Snow Particle System ==========
@@ -521,59 +613,71 @@
 
     // ========== Settings ==========
     function loadSettings() {
-      const darkMode = localStorage.getItem("darkMode") === "true";
-      const particlesEnabled = localStorage.getItem("particlesEnabled") === "true";
-      const pageTitle = localStorage.getItem("pageTitle");
-      const faviconUrl = localStorage.getItem("faviconUrl");
-      const panicKey = localStorage.getItem("panicKey") || "P";
-      const panicUrl = localStorage.getItem("panicUrl") || "https://portal.austinisd.org";
-      const clickSound = localStorage.getItem("clickSoundEnabled") === "true";
-      const searchEngine = localStorage.getItem("searchEngine") || "duckduckgo";
+      try {
+        const darkMode = localStorage.getItem("darkMode") === "true";
+        const particlesEnabled = localStorage.getItem("particlesEnabled") === "true";
+        const pageTitle = localStorage.getItem("pageTitle");
+        const faviconUrl = localStorage.getItem("faviconUrl");
+        const panicKey = localStorage.getItem("panicKey") || "P";
+        const panicUrl = localStorage.getItem("panicUrl") || "https://portal.austinisd.org";
+        const clickSound = localStorage.getItem("clickSoundEnabled") === "true";
+        const searchEngine = localStorage.getItem("searchEngine") || "duckduckgo";
+        const typingAnimation = localStorage.getItem("typingAnimation") === "true";
 
-      document.getElementById("darkModeToggle").checked = darkMode;
-      document.getElementById("particlesToggle").checked = particlesEnabled;
-      document.getElementById("pageTitleInput").value = pageTitle || "";
-      document.getElementById("faviconInput").value = faviconUrl || "";
-      document.getElementById("panicKeyInput").value = panicKey;
-      document.getElementById("panicUrlInput").value = panicUrl;
-      document.getElementById("clickSoundToggle").checked = clickSound;
-      document.getElementById("searchEngineSelector-settings").value = searchEngine;
+        document.getElementById("darkModeToggle").checked = darkMode;
+        document.getElementById("particlesToggle").checked = particlesEnabled;
+        document.getElementById("pageTitleInput").value = pageTitle || "";
+        document.getElementById("faviconInput").value = faviconUrl || "";
+        document.getElementById("panicKeyInput").value = panicKey;
+        document.getElementById("panicUrlInput").value = panicUrl;
+        document.getElementById("clickSoundToggle").checked = clickSound;
+        document.getElementById("searchEngineSelector-settings").value = searchEngine;
+        document.getElementById("typingAnimationToggle").checked = typingAnimation;
 
-      if (darkMode) document.body.classList.add("dark-mode");
-      else document.body.classList.remove("dark-mode");
+        if (darkMode) document.body.classList.add("dark-mode");
+        else document.body.classList.remove("dark-mode");
 
-      if (pageTitle) document.title = pageTitle;
-      if (faviconUrl) document.getElementById("favicon").href = faviconUrl;
+        if (pageTitle) document.title = pageTitle;
+        if (faviconUrl) document.getElementById("favicon").href = faviconUrl;
 
-      updateParticles();
+        updateParticles();
+      } catch (err) {
+        console.error("Failed to load settings:", err);
+      }
     }
     function saveSettings() {
-      const darkMode = document.getElementById("darkModeToggle").checked;
-      const particlesEnabled = document.getElementById("particlesToggle").checked;
-      const pageTitle = document.getElementById("pageTitleInput").value.trim();
-      const faviconUrl = document.getElementById("faviconInput").value.trim();
-      const panicKey = document.getElementById("panicKeyInput").value.trim().toUpperCase() || "P";
-      const panicUrl = document.getElementById("panicUrlInput").value.trim() || "https://portal.austinisd.org";
-      const clickSound = document.getElementById("clickSoundToggle").checked;
-      const searchEngine = document.getElementById("searchEngineSelector-settings").value;
+      try {
+        const darkMode = document.getElementById("darkModeToggle").checked;
+        const particlesEnabled = document.getElementById("particlesToggle").checked;
+        const pageTitle = document.getElementById("pageTitleInput").value.trim();
+        const faviconUrl = document.getElementById("faviconInput").value.trim();
+        const panicKey = document.getElementById("panicKeyInput").value.trim().toUpperCase() || "P";
+        const panicUrl = document.getElementById("panicUrlInput").value.trim() || "https://portal.austinisd.org";
+        const clickSound = document.getElementById("clickSoundToggle").checked;
+        const searchEngine = document.getElementById("searchEngineSelector-settings").value;
+        const typingAnimation = document.getElementById("typingAnimationToggle").checked;
 
-      localStorage.setItem("darkMode", darkMode);
-      localStorage.setItem("particlesEnabled", particlesEnabled);
-      localStorage.setItem("pageTitle", pageTitle);
-      localStorage.setItem("faviconUrl", faviconUrl);
-      localStorage.setItem("panicKey", panicKey);
-      localStorage.setItem("panicUrl", panicUrl);
-      localStorage.setItem("clickSoundEnabled", clickSound);
-      localStorage.setItem("searchEngine", searchEngine);
+        localStorage.setItem("darkMode", darkMode);
+        localStorage.setItem("particlesEnabled", particlesEnabled);
+        localStorage.setItem("pageTitle", pageTitle);
+        localStorage.setItem("faviconUrl", faviconUrl);
+        localStorage.setItem("panicKey", panicKey);
+        localStorage.setItem("panicUrl", panicUrl);
+        localStorage.setItem("clickSoundEnabled", clickSound);
+        localStorage.setItem("searchEngine", searchEngine);
+        localStorage.setItem("typingAnimation", typingAnimation);
 
-      if (darkMode) document.body.classList.add("dark-mode");
-      else document.body.classList.remove("dark-mode");
+        if (darkMode) document.body.classList.add("dark-mode");
+        else document.body.classList.remove("dark-mode");
 
-      if (pageTitle) document.title = pageTitle;
-      if (faviconUrl) document.getElementById("favicon").href = faviconUrl;
+        if (pageTitle) document.title = pageTitle;
+        if (faviconUrl) document.getElementById("favicon").href = faviconUrl;
 
-      updateParticles();
-      updateParticleColors();
+        updateParticles();
+        updateParticleColors();
+      } catch (err) {
+        console.error("Failed to save settings:", err);
+      }
     }
 
     // ========== Modal Events ==========
@@ -599,56 +703,108 @@
 
     // ========== Panic Key Shortcut ==========
     window.addEventListener("keydown", e => {
-      const panicKey = (localStorage.getItem("panicKey") || "P").toUpperCase();
-      if (e.key.toUpperCase() === panicKey) {
-        window.location.href = localStorage.getItem("panicUrl") || "https://portal.austinisd.org";
+      try {
+        const panicKey = (localStorage.getItem("panicKey") || "P").toUpperCase();
+        if (e.key.toUpperCase() === panicKey) {
+          window.location.href = localStorage.getItem("panicUrl") || "https://portal.austinisd.org";
+        }
+      } catch (err) {
+        console.error("Panic key failed:", err);
       }
     });
 
     // ========== Search Form with Engine ==========
     document.getElementById("customDomainForm").addEventListener("submit", (e) => {
       e.preventDefault();
-      const input = document.getElementById("customDomainInput").value.trim();
-      const engine = localStorage.getItem("searchEngine") || "duckduckgo";
-      if (!input) return;
-      if (input.startsWith("http://") || input.startsWith("https://")) {
-        window.location.href = input;
-      } else if (input.includes(".")) {
-        window.location.href = "https://" + input;
-      } else {
-        let searchURL = "";
-        if (engine === "google") searchURL = `https://www.google.com/search?q=${encodeURIComponent(input)}`;
-        else if (engine === "bing") searchURL = `https://www.bing.com/search?q=${encodeURIComponent(input)}`;
-        else if (engine === "yandex") searchURL = `https://www.yandex.com/search?q=${encodeURIComponent(input)}`;
-        else searchURL = `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
-        window.location.href = searchURL;
+      try {
+        const input = document.getElementById("customDomainInput").value.trim();
+        const engine = localStorage.getItem("searchEngine") || "duckduckgo";
+        if (!input) return;
+        if (input.startsWith("http://") || input.startsWith("https://")) {
+          window.location.href = input;
+        } else if (input.includes(".")) {
+          window.location.href = "https://" + input;
+        } else {
+          let searchURL = "";
+          if (engine === "google") searchURL = `https://www.google.com/search?q=${encodeURIComponent(input)}`;
+          else if (engine === "bing") searchURL = `https://www.bing.com/search?q=${encodeURIComponent(input)}`;
+          else searchURL = `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
+          window.location.href = searchURL;
+        }
+      } catch (err) {
+        console.error("Form submission failed:", err);
       }
+    });
+
+    // ========== Quick Links with Redirect ==========
+    document.querySelectorAll(".section:nth-child(2) button").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        try {
+          const url = btn.getAttribute("onclick").match(/'([^']+)'/)[1];
+          if (localStorage.getItem("clickSoundEnabled") === "true") {
+            const audio = document.getElementById("clickSound");
+            audio.currentTime = 0;
+            audio.play().catch(err => console.error("Audio playback failed:", err));
+          }
+          runRedirectScreen(url);
+        } catch (err) {
+          console.error("Quick link navigation failed:", err);
+          const url = btn.getAttribute("onclick").match(/'([^']+)'/)[1];
+          window.open(url, "_blank");
+        }
+      });
     });
 
     // ========== Click Sound ==========
     document.querySelectorAll('button').forEach(btn => {
       btn.addEventListener('click', () => {
         if (localStorage.getItem("clickSoundEnabled") === "true") {
-          const audio = document.getElementById("clickSound");
-          audio.currentTime = 0;
-          audio.play();
+          try {
+            const audio = document.getElementById("clickSound");
+            audio.currentTime = 0;
+            audio.play().catch(err => console.error("Audio playback failed:", err));
+          } catch (err) {
+            console.error("Click sound failed:", err);
+          }
         }
       });
     });
 
-    // ========== Page Load Logic ==========
+    // ========== Page Load Logic with Typing Animation ==========
     window.onload = async () => {
-      loadSettings();
-      // OS-Dependent Delay for Loader
-      const os = detectOS();
-      let delay = 1200;
-      if (os === "Windows") delay = 900;
-      else if (os === "iOS") delay = 2300;
-      else if (os === "MacOS") delay = 2800;
-      else if (os === "Android") delay = 800;
-      else if (os === "Default") delay = 0;
-      else if (os === "Linux") delay = 500;
-      await runLoadingWithTyping("Loading...", delay);
+      try {
+        loadSettings();
+        const os = detectOS();
+        let delay = 1200;
+        if (os === "Windows") delay = 900;
+        else if (os === "iOS") delay = 2300;
+        else if (os === "MacOS") delay = 2800;
+        else if (os === "Android") delay = 800;
+        await runLoadingWithTyping("Loading...", delay);
+
+        if (localStorage.getItem("typingAnimation") === "true") {
+          const elements = [
+            { el: document.querySelector("h1"), text: "📶 CloneDNS Portal", duration: 1000 },
+            { el: document.querySelector("p"), text: "You’re connected and avoiding censorship, bro. Choose a site or enter your own domain below. If all else fails, smash the 🔥 fallback button.", duration: 2000 },
+            { el: document.querySelector(".section:nth-child(2) h2"), text: "Quick Links (Open in New Tab)", duration: 800 },
+            { el: document.querySelector(".section:nth-child(3) h2"), text: "🚨 Fallback Button", duration: 800 },
+            { el: document.querySelector(".section:nth-child(4) h2"), text: "GitHub Repository", duration: 800 }
+          ];
+          for (const { el } of elements) {
+            if (el) el.style.visibility = "hidden";
+          }
+          for (const { el, text, duration } of elements) {
+            if (el) {
+              el.style.visibility = "visible";
+              await typeLoadingText(text, duration, el);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Page load failed:", err);
+        document.querySelectorAll("h1, p, h2").forEach(el => el.style.visibility = "visible");
+      }
     };
   </script>
 </body>
