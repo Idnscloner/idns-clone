@@ -619,6 +619,7 @@
         let searchURL = "";
         if (engine === "google") searchURL = `https://www.google.com/search?q=${encodeURIComponent(input)}`;
         else if (engine === "bing") searchURL = `https://www.bing.com/search?q=${encodeURIComponent(input)}`;
+        else if (engine === "yandex") searchURL = `https://www.yandex.com/search?q=${encodeURIComponent(input)}`;
         else searchURL = `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
         window.location.href = searchURL;
       }
@@ -647,7 +648,7 @@
       else if (os === "Android") delay = 800;
       else if (os === "Default") delay = 0;
       else if (os === "Linux") delay = 500;
-      await runLoadingWithTyping("Loading.......", delay);
+      await runLoadingWithTyping("Loading...", delay);
     };
   </script>
 </body>
