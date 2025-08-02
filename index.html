@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -374,13 +375,13 @@
 
   <div class="section">
     <h2>Quick Links (Open in New Tab)</h2>
-    <button data-url="https://www.google.com">Google</button>
-    <button data-url="https://www.youtube.com">YouTube</button>
-    <button data-url="https://duckduckgo.com">DuckDuckGO</button>
-    <button data-url="https://open.spotify.com">Spotify</button>
-    <button data-url="https://chat.openai.com">ChatGPT</button>
-    <button data-url="https://croxyproxy.com">CroxyProxy</button>
-    <button data-url="https://youtubeunblocked.live">YouTube Proxy</button>
+    <button class="quick-link" data-url="https://www.google.com">Google</button>
+    <button class="quick-link" data-url="https://www.youtube.com">YouTube</button>
+    <button class="quick-link" data-url="https://duckduckgo.com">DuckDuckGO</button>
+    <button class="quick-link" data-url="https://open.spotify.com">Spotify</button>
+    <button class="quick-link" data-url="https://chat.openai.com">ChatGPT</button>
+    <button class="quick-link" data-url="https://croxyproxy.com">CroxyProxy</button>
+    <button class="quick-link" data-url="https://youtubeunblocked.live">YouTube Proxy</button>
   </div>
 
   <div class="section">
@@ -481,6 +482,7 @@
     }
     async function typeLoadingText(text, totalDuration, container) {
       try {
+        console.log("Typing text:", text);
         container.textContent = "";
         container.classList.add("typing");
         const totalChars = text.length;
@@ -611,6 +613,8 @@
           } else {
             overlay.classList.remove("show");
             document.body.classList.remove("redirecting");
+            console.log("Animation complete, navigating to:", url);
+            window.open(url, "_blank");
           }
         }
 
@@ -626,13 +630,11 @@
           typeLoadingText(reason, 800, document.getElementById("redirectReason"))
         ]);
         requestAnimationFrame(animateParticles);
-        await new Promise(r => setTimeout(r, duration));
-        console.log("Opening URL:", url);
-        window.open(url, "_blank");
       } catch (err) {
         console.error("Redirect animation failed:", err);
         document.getElementById("redirectOverlay").classList.remove("show");
         document.body.classList.remove("redirecting");
+        console.log("Falling back to direct navigation:", url);
         window.open(url, "_blank");
       }
     }
@@ -714,6 +716,7 @@
     // ========== Settings ==========
     function loadSettings() {
       try {
+        console.log("Loading settings");
         const darkMode = localStorage.getItem("darkMode") === "true";
         const particlesEnabled = localStorage.getItem("particlesEnabled") === "true";
         const pageTitle = localStorage.getItem("pageTitle");
@@ -747,6 +750,7 @@
     }
     function saveSettings() {
       try {
+        console.log("Saving settings");
         const darkMode = document.getElementById("darkModeToggle").checked;
         const particlesEnabled = document.getElementById("particlesToggle").checked;
         const pageTitle = document.getElementById("pageTitleInput").value.trim();
@@ -851,26 +855,26 @@
       'https://croxyproxy.com': 'CroxyProxy',
       'https://youtubeunblocked.live': 'YouTube Proxy'
     };
-    document.querySelectorAll(".section:nth-child(2) button").forEach(btn => {
+    document.querySelectorAll("button.quick-link").forEach(btn => {
       btn.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
-        console.log("Quick link clicked:", btn.textContent);
-        try {
-          const url = btn.getAttribute("data-url");
-          if (!url) throw new Error("No data-url attribute found");
-          const siteName = siteNames[url] || 'Site';
-          if (localStorage.getItem("clickSoundEnabled") === "true") {
-            const audio = document.getElementById("clickSound");
-            audio.currentTime = 0;
-            audio.play().catch(err => console.error("Audio playback failed:", err));
-          }
-          runRedirectScreen(url, siteName);
-        } catch (err) {
-          console.error("Quick link navigation failed:", err);
-          const url = btn.getAttribute("data-url");
-          if (url) window.open(url, "_blank");
+        const url = btn.getAttribute("data-url");
+        console.log("Quick link clicked:", btn.textContent, "URL:", url);
+        if (!url) {
+          console.error("No data-url attribute found for button:", btn.textContent);
+          return;
         }
+        const siteName = siteNames[url] || 'Site';
+        if (localStorage.getItem("clickSoundEnabled") === "true") {
+          const audio = document.getElementById("clickSound");
+          audio.currentTime = 0;
+          audio.play().catch(err => console.error("Click sound failed:", err));
+        }
+        runRedirectScreen(url, siteName).catch(err => {
+          console.error("runRedirectScreen failed:", err);
+          window.open(url, "_blank");
+        });
       });
     });
 
@@ -881,7 +885,7 @@
           try {
             const audio = document.getElementById("clickSound");
             audio.currentTime = 0;
-            audio.play().catch(err => console.error("Audio playback failed:", err));
+            audio.play().catch(err => console.error("Click sound failed:", err));
           } catch (err) {
             console.error("Click sound failed:", err);
           }
