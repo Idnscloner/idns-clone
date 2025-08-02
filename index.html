@@ -645,6 +645,8 @@
       else if (os === "iOS") delay = 2300;
       else if (os === "MacOS") delay = 2800;
       else if (os === "Android") delay = 800;
+      else if (os === "Default") delay = 0;
+      else if (os === "Linux") delay = 500;
       await runLoadingWithTyping("Loading...", delay);
     };
   </script>
