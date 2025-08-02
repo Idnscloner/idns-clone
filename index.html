@@ -71,7 +71,6 @@
       margin-right: auto;
       user-select: none;
     }
-    /* ==== MODAL styles, toggles, and fields ==== */
     #settingsModal {
       position: fixed;
       inset: 0;
@@ -242,7 +241,6 @@
       background-color: #e6b132;
       box-shadow: 0 6px 15px rgba(230, 177, 50, 0.9);
     }
-    /* Loading bar/overlay */
     #loadingBarContainer {
       position: fixed;
       top: 0;
@@ -290,43 +288,6 @@
       user-select: none;
       will-change: transform;
     }
-    /* ===== THEME STYLES (Glitch + Neon + Styled Dropdowns) ===== */
-    body.theme-glitch {
-      background: #171022;
-      color: #00ffee;
-      font-family: 'Courier New', Courier, monospace;
-      animation: glitchBgAnim 3s infinite alternate;
-    }
-    @keyframes glitchBgAnim {
-      0% { background-color: #171022; }
-      50% { background-color: #320042; }
-      100% { background-color: #171022; }
-    }
-    body.theme-neon {
-      background: linear-gradient(135deg, #07001a, #0a1257);
-      color: #39ff14;
-      font-family: 'Orbitron', sans-serif;
-    }
-    select#themeSelector,
-    select#searchEngineSelector {
-      background-color: #fff;
-      border: 1.5px solid #ccc;
-      color: #111;
-    }
-    body.theme-glitch select {
-      background-color: #12002f;
-      border: 1.5px solid #0ff;
-      color: #0ff;
-      box-shadow: 0 0 6px #00ffee88;
-      text-shadow: 0 0 2px #0ff;
-    }
-    body.theme-neon select {
-      background-color: #0a0a0a;
-      border: 1.5px solid #39ff14;
-      color: #39ff14;
-      box-shadow: 0 0 6px #39ff14bb;
-      text-shadow: 0 0 2px #39ff14;
-    }
   </style>
 </head>
 <body>
@@ -338,18 +299,12 @@
 
   <div class="section">
     <form id="customDomainForm">
-      <input type="text" id="customDomainInput" placeholder="Enter a domain or search term" autocomplete="off" />
-      <select id="searchEngineSelector" style="font-size:16px; border-radius:8px; padding:10px; width:100%; margin-bottom:16px;">
-        <option value="duckduckgo">DuckDuckGo</option>
-        <option value="google">Google</option>
-        <option value="bing">Bing</option>
-      </select>
+      <input type="text" id="customDomainInput" placeholder="Enter a domain or search on DuckDuckGo" autocomplete="off" />
       <br />
-      <button type="submit">Open Domain/Search</button>
+      <button type="submit">Open Domain</button>
     </form>
   </div>
 
-  <!-- Quick Links Section -->
   <div class="section">
     <h2>Quick Links (Open in New Tab)</h2>
     <button onclick="window.open('https://www.google.com', '_blank')">Google</button>
@@ -361,34 +316,28 @@
     <button onclick="window.open('https://youtubeunblocked.live', '_blank')">YouTube Proxy</button>
   </div>
 
-  <!-- Fallback Button -->
   <div class="section">
     <h2>🚨 Fallback Button</h2>
     <button onclick="window.location.href='https://us.idnsportal.com'">Go to iDNSPortal (if this breaks)</button>
   </div>
 
-  <!-- GitHub Repository (still links to iDNSPortal for now) -->
   <div class="section">
     <h2>GitHub Repository</h2>
     <button onclick="window.location.href='https://us.idnsportal.com'">Visit our GitHub Repository</button>
   </div>
 
-  <!-- Donate Button -->
   <div class="section">
     <button id="openDonateBtn">
-      💸 Donate with PayPal.me (Coming soon!)
-    </button>
+      💸 Donate with PayPal.me (Coming soon!)</button>
   </div>
 
-  <!-- Settings Modal Button -->
   <div class="section">
     <button id="openSettingsBtn">⚙️ Settings</button>
   </div>
 
-  <!-- Particle Background for Snow -->
   <div id="particleContainer"></div>
 
-  <!-- SETTINGS MODAL, including all new feature controls! -->
+  <!-- Settings Modal -->
   <div id="settingsModal" aria-hidden="true">
     <div id="settingsContent" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
       <h2 id="settingsTitle">Customize Page & Dark Mode</h2>
@@ -409,17 +358,16 @@
         <span>Enable Snow Particles</span>
       </label>
 
-      <label for="panicKeyInput" style="margin-top:22px; text-align:left; font-weight:600; display:block; font-size:0.95rem;">
+      <label for="panicKeyInput" style="margin-top: 22px; text-align: left; font-weight: 600; display: block; font-size: 0.95rem;">
         Panic Key (single letter or digit)
       </label>
-      <input type="text" id="panicKeyInput" maxlength="1" placeholder="Default: P" style="text-transform:uppercase;" />
+      <input type="text" id="panicKeyInput" maxlength="1" placeholder="Default: P" style="text-transform: uppercase;" />
 
-      <label for="panicUrlInput" style="margin-top:12px; text-align:left; font-weight:600; display:block; font-size:0.95rem;">
+      <label for="panicUrlInput" style="margin-top: 12px; text-align: left; font-weight: 600; display: block; font-size: 0.95rem;">
         Panic URL
       </label>
       <input type="url" id="panicUrlInput" placeholder="Default: https://portal.austinisd.org" />
 
-      <!-- --- NEW FEATURE CONTROLS BELOW --- -->
       <hr style="margin: 20px 0; border: none; border-top: 1px solid #ccc;" />
 
       <label class="toggle-switch" for="clickSoundToggle" style="margin-top:12px;">
@@ -436,25 +384,15 @@
         <option value="bing">Bing</option>
       </select>
 
-      <label for="themeSelector" style="display:block; font-weight:600; margin-top:16px; text-align:left;">
-        Theme
-      </label>
-      <select id="themeSelector" style="font-size:16px; border-radius:8px; padding:10px; width:100%;">
-        <option value="default">Default</option>
-        <option value="glitch">Glitch Cyberpunk</option>
-        <option value="neon">Neon</option>
-      </select>
-      <!-- ------------------- -->
-
       <button id="applySettingsBtn">Apply Changes</button>
       <button id="closeSettings">Close</button>
     </div>
   </div>
 
-  <!-- Click Sound -->
   <audio id="clickSound" src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" preload="auto"></audio>
+
   <script>
-    // === Utility Functions ===
+    // ========== Loading Overlay & Utilities ==========
     function detectOS() {
       const userAgent = navigator.userAgent || navigator.vendor || window.opera;
       if (/windows phone/i.test(userAgent)) return "WindowsPhone";
@@ -465,67 +403,53 @@
       if (/iphone|ipad|ipod/i.test(userAgent)) return "iOS";
       return "Other";
     }
-
     function randomInRange(min, max) {
       return Math.random() * (max - min) + min;
     }
-
-    function playClickSound() {
-      if (localStorage.getItem("clickSoundEnabled") === "true") {
-        const clickSound = document.getElementById("clickSound");
-        clickSound.currentTime = 0;
-        clickSound.play();
+    async function typeLoadingText(text, totalDuration) {
+      const container = document.getElementById("loadingText");
+      container.textContent = "";
+      const totalChars = text.length;
+      if (totalChars === 0) return;
+      const delayPerChar = totalDuration / totalChars;
+      for (let i = 0; i < totalChars; i++) {
+        container.textContent += text[i];
+        await new Promise(r => setTimeout(r, delayPerChar));
       }
     }
-
     function runLoadingBar(durationMs) {
       return new Promise((resolve) => {
         const loadingBar = document.getElementById("loadingBar");
         const loadingOverlay = document.getElementById("loadingOverlay");
-
         loadingBar.style.width = "0%";
         loadingOverlay.style.display = "flex";
-
-        const firstPhase = 500;
-        const secondPhase = durationMs - firstPhase;
-
-        loadingBar.style.transition = `width ${firstPhase}ms linear`;
+        const firstPhaseDuration = 500;
+        const totalDuration = durationMs;
+        const secondPhaseDuration = totalDuration - firstPhaseDuration;
+        loadingBar.style.transition = `width ${firstPhaseDuration}ms linear`;
         loadingBar.style.width = "25%";
-
         setTimeout(() => {
-          loadingBar.style.transition = `width ${secondPhase}ms ease-in-out`;
+          loadingBar.style.transition = `width ${secondPhaseDuration}ms ease-in-out`;
           loadingBar.style.width = "100%";
-        }, firstPhase);
-
+        }, firstPhaseDuration);
         setTimeout(() => {
           loadingOverlay.style.display = "none";
           resolve();
-        }, durationMs);
+        }, totalDuration);
       });
     }
-
-    function typeLoadingText(text, totalDuration) {
-      const el = document.getElementById("loadingText");
-      el.textContent = "";
-      const delay = totalDuration / text.length;
-      let i = 0;
-      const interval = setInterval(() => {
-        if (i >= text.length) return clearInterval(interval);
-        el.textContent += text[i++];
-      }, delay);
-    }
-
-    function runLoadingWithTyping(text, duration) {
-      return Promise.all([
-        new Promise((r) => setTimeout(() => r(), duration)),
+    async function runLoadingWithTyping(text, duration) {
+      await Promise.all([
         typeLoadingText(text, duration),
         runLoadingBar(duration)
       ]);
     }
 
-    // === Particle Snow System ===
+    // ========== Snow Particle System ==========
     let particles = [];
-    let particleFrame;
+    let particleFrame = null;
+    let lastScrollY = window.scrollY;
+
     class Particle {
       constructor() {
         this.size = randomInRange(8, 14);
@@ -545,8 +469,8 @@
         });
         document.getElementById("particleContainer").appendChild(this.el);
       }
-      update() {
-        this.y += this.speedY;
+      update(scrollVelocity) {
+        this.y += this.speedY + (scrollVelocity || 0) * 0.15;
         this.x += this.speedX;
         if (this.y > window.innerHeight) {
           this.y = randomInRange(-20, -100);
@@ -562,7 +486,7 @@
       }
     }
     function getParticleColor() {
-      return document.body.classList.contains("dark-mode") || document.body.classList.contains("theme-neon")
+      return document.body.classList.contains("dark-mode")
         ? "rgba(255,255,255,0.85)"
         : "rgba(80,80,80,0.5)";
     }
@@ -571,86 +495,88 @@
       animateParticles();
     }
     function animateParticles() {
-      particles.forEach((p) => p.update());
+      const deltaY = Math.abs(window.scrollY - lastScrollY);
+      const scrollVelocity = deltaY;
+      lastScrollY = window.scrollY;
+      particles.forEach((p) => p.update(scrollVelocity));
       particleFrame = requestAnimationFrame(animateParticles);
     }
     function clearParticles() {
       if (particleFrame) cancelAnimationFrame(particleFrame);
       particles.forEach((p) => p.remove());
       particles = [];
+      particleFrame = null;
     }
     function updateParticles() {
-      if (localStorage.getItem("particlesEnabled") === "true") createParticles(40);
-      else clearParticles();
+      const particlesEnabled = localStorage.getItem("particlesEnabled") === "true";
+      clearParticles();
+      if (particlesEnabled) createParticles(40);
     }
     function updateParticleColors() {
-      particles.forEach((p) => {
+      particles.forEach(p => {
         p.color = getParticleColor();
         p.el.style.backgroundColor = p.color;
       });
     }
 
-    // === Settings Load / Save ===
+    // ========== Settings ==========
     function loadSettings() {
-      const get = (k, def) => localStorage.getItem(k) || def;
-      const dark = get("darkMode") === "true";
-      const snow = get("particlesEnabled") === "true";
-      const pageTitle = get("pageTitle", "");
-      const faviconUrl = get("faviconUrl", "");
-      const panicKey = get("panicKey", "P");
-      const panicUrl = get("panicUrl", "https://portal.austinisd.org");
-      const clickSound = get("clickSoundEnabled") === "true";
-      const searchEngine = get("searchEngine", "duckduckgo");
-      const theme = get("theme", "default");
+      const darkMode = localStorage.getItem("darkMode") === "true";
+      const particlesEnabled = localStorage.getItem("particlesEnabled") === "true";
+      const pageTitle = localStorage.getItem("pageTitle");
+      const faviconUrl = localStorage.getItem("faviconUrl");
+      const panicKey = localStorage.getItem("panicKey") || "P";
+      const panicUrl = localStorage.getItem("panicUrl") || "https://portal.austinisd.org";
+      const clickSound = localStorage.getItem("clickSoundEnabled") === "true";
+      const searchEngine = localStorage.getItem("searchEngine") || "duckduckgo";
 
-      // UI reflects localStorage
-      document.getElementById("darkModeToggle").checked = dark;
-      document.getElementById("particlesToggle").checked = snow;
-      document.getElementById("pageTitleInput").value = pageTitle;
-      document.getElementById("faviconInput").value = faviconUrl;
+      document.getElementById("darkModeToggle").checked = darkMode;
+      document.getElementById("particlesToggle").checked = particlesEnabled;
+      document.getElementById("pageTitleInput").value = pageTitle || "";
+      document.getElementById("faviconInput").value = faviconUrl || "";
       document.getElementById("panicKeyInput").value = panicKey;
       document.getElementById("panicUrlInput").value = panicUrl;
       document.getElementById("clickSoundToggle").checked = clickSound;
-      document.getElementById("searchEngineSelector").value = searchEngine;
       document.getElementById("searchEngineSelector-settings").value = searchEngine;
-      document.getElementById("themeSelector").value = theme;
 
-      // Apply settings
-      document.body.classList.toggle("dark-mode", dark);
-      document.title = pageTitle || "CloneDNS Portal";
+      if (darkMode) document.body.classList.add("dark-mode");
+      else document.body.classList.remove("dark-mode");
+
+      if (pageTitle) document.title = pageTitle;
       if (faviconUrl) document.getElementById("favicon").href = faviconUrl;
-      document.body.classList.remove("theme-glitch", "theme-neon");
-      if (theme === "glitch") document.body.classList.add("theme-glitch");
-      if (theme === "neon") document.body.classList.add("theme-neon");
+
       updateParticles();
     }
-
     function saveSettings() {
-      const dark = document.getElementById("darkModeToggle").checked;
-      const snow = document.getElementById("particlesToggle").checked;
+      const darkMode = document.getElementById("darkModeToggle").checked;
+      const particlesEnabled = document.getElementById("particlesToggle").checked;
       const pageTitle = document.getElementById("pageTitleInput").value.trim();
       const faviconUrl = document.getElementById("faviconInput").value.trim();
       const panicKey = document.getElementById("panicKeyInput").value.trim().toUpperCase() || "P";
       const panicUrl = document.getElementById("panicUrlInput").value.trim() || "https://portal.austinisd.org";
       const clickSound = document.getElementById("clickSoundToggle").checked;
       const searchEngine = document.getElementById("searchEngineSelector-settings").value;
-      const theme = document.getElementById("themeSelector").value;
 
-      localStorage.setItem("darkMode", dark);
-      localStorage.setItem("particlesEnabled", snow);
+      localStorage.setItem("darkMode", darkMode);
+      localStorage.setItem("particlesEnabled", particlesEnabled);
       localStorage.setItem("pageTitle", pageTitle);
       localStorage.setItem("faviconUrl", faviconUrl);
       localStorage.setItem("panicKey", panicKey);
       localStorage.setItem("panicUrl", panicUrl);
       localStorage.setItem("clickSoundEnabled", clickSound);
       localStorage.setItem("searchEngine", searchEngine);
-      localStorage.setItem("theme", theme);
 
-      loadSettings(); // reapply all
+      if (darkMode) document.body.classList.add("dark-mode");
+      else document.body.classList.remove("dark-mode");
+
+      if (pageTitle) document.title = pageTitle;
+      if (faviconUrl) document.getElementById("favicon").href = faviconUrl;
+
+      updateParticles();
       updateParticleColors();
     }
 
-    // === Settings Modal Events ===
+    // ========== Modal Events ==========
     document.getElementById("darkModeToggle").addEventListener("change", updateParticleColors);
     document.getElementById("particlesToggle").addEventListener("change", updateParticles);
 
@@ -671,50 +597,55 @@
       document.getElementById("settingsModal").setAttribute("aria-hidden", "true");
     });
 
-    // === Panic Key Shortcut ===
-    window.addEventListener("keydown", (e) => {
-      const key = (localStorage.getItem("panicKey") || "P").toUpperCase();
-      if (e.key.toUpperCase() === key) {
+    // ========== Panic Key Shortcut ==========
+    window.addEventListener("keydown", e => {
+      const panicKey = (localStorage.getItem("panicKey") || "P").toUpperCase();
+      if (e.key.toUpperCase() === panicKey) {
         window.location.href = localStorage.getItem("panicUrl") || "https://portal.austinisd.org";
       }
     });
 
-    // === Custom Domain Form Logic w/ Search Engine Picker ===
+    // ========== Search Form with Engine ==========
     document.getElementById("customDomainForm").addEventListener("submit", (e) => {
       e.preventDefault();
       const input = document.getElementById("customDomainInput").value.trim();
       const engine = localStorage.getItem("searchEngine") || "duckduckgo";
-
       if (!input) return;
-
       if (input.startsWith("http://") || input.startsWith("https://")) {
         window.location.href = input;
       } else if (input.includes(".")) {
         window.location.href = "https://" + input;
       } else {
-        let queryUrl = "";
-        if (engine === "google") queryUrl = "https://www.google.com/search?q=";
-        else if (engine === "bing") queryUrl = "https://www.bing.com/search?q=";
-        else queryUrl = "https://duckduckgo.com/?q=";
-        window.location.href = queryUrl + encodeURIComponent(input);
+        let searchURL = "";
+        if (engine === "google") searchURL = `https://www.google.com/search?q=${encodeURIComponent(input)}`;
+        else if (engine === "bing") searchURL = `https://www.bing.com/search?q=${encodeURIComponent(input)}`;
+        else searchURL = `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
+        window.location.href = searchURL;
       }
     });
 
-    // === Play click sound on button clicks ===
+    // ========== Click Sound ==========
     document.querySelectorAll('button').forEach(btn => {
-      btn.addEventListener('click', playClickSound);
+      btn.addEventListener('click', () => {
+        if (localStorage.getItem("clickSoundEnabled") === "true") {
+          const audio = document.getElementById("clickSound");
+          audio.currentTime = 0;
+          audio.play();
+        }
+      });
     });
 
-    // === Initial Setup ===
+    // ========== Page Load Logic ==========
     window.onload = async () => {
       loadSettings();
+      // OS-Dependent Delay for Loader
       const os = detectOS();
       let delay = 1200;
       if (os === "Windows") delay = 900;
       else if (os === "iOS") delay = 2300;
       else if (os === "MacOS") delay = 2800;
       else if (os === "Android") delay = 800;
-      await runLoadingWithTyping("Loading CloneDNS Portal...", delay);
+      await runLoadingWithTyping("Loading...", delay);
     };
   </script>
 </body>
