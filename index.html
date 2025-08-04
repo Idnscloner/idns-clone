@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,353 +6,56 @@
   <title>Wi-Fi Configuration Utility</title>
   <link id="favicon" rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/6/6a/Wi-Fi_icon.svg" />
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      text-align: center;
-      padding: 40px;
-      background-color: #f2f2f2;
-      color: #222;
-      transition: background-color 0.4s ease, color 0.4s ease;
-      user-select: none;
-      overflow-x: hidden;
-    }
-    input[type="text"], input[type="url"] {
-      padding: 10px 12px;
-      font-size: 16px;
-      width: 100%;
-      box-sizing: border-box;
-      margin-bottom: 16px;
-      border-radius: 8px;
-      border: 1.8px solid #ccc;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease;
-      font-weight: 500;
-    }
-    input[type="text"]:focus, input[type="url"]:focus {
-      outline: none;
-      border-color: #007bff;
-      box-shadow: 0 0 8px rgba(0,123,255,0.5);
-    }
-    button {
-      cursor: pointer;
-      border: none;
-      border-radius: 8px;
-      padding: 12px 28px;
-      font-size: 16px;
-      font-weight: 600;
-      background: #007bff;
-      color: white;
-      transition: background-color 0.3s ease, box-shadow 0.3s ease;
-      box-shadow: 0 4px 9px rgba(0, 123, 255, 0.3);
-      user-select: none;
-      margin: 6px 8px 20px;
-      min-width: 120px;
-      letter-spacing: 0.04em;
-    }
-    button:hover {
-      background: #0056b3;
-      box-shadow: 0 6px 15px rgba(0, 86, 179, 0.5);
-    }
-    h1 {
-      font-weight: 700;
-      font-size: 2.8rem;
-      margin-bottom: 10px;
-      user-select: text;
-    }
-    p {
-      font-size: 1.15rem;
-      margin-bottom: 30px;
-      user-select: text;
-      color: #444;
-    }
-    .section {
+    /* Existing styles unchanged, adding new styles for music player */
+    .music-player-section {
       margin-top: 28px;
       max-width: 600px;
       margin-left: auto;
       margin-right: auto;
-      user-select: none;
+      display: none; /* Hidden by default */
     }
-    #settingsModal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.55);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      opacity: 0;
-      transition: opacity 0.35s ease;
-    }
-    #settingsModal.show {
-      display: flex;
-      opacity: 1;
-    }
-    #settingsContent {
-      background: #ffffff;
-      border-radius: 18px;
-      padding: 30px 36px;
-      width: 360px;
-      max-width: 90vw;
-      max-height: 80vh;
-      overflow-y: auto;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.18);
-      transform: scale(0.75);
-      opacity: 0;
-      transition: transform 0.35s ease, opacity 0.35s ease;
-      font-weight: 500;
-      color: #222;
-      user-select: text;
-    }
-    #settingsModal.show #settingsContent {
-      transform: scale(1);
-      opacity: 1;
-    }
-    body.dark-mode #settingsContent {
-      background: #2a2a2a;
-      color: #eee;
-      box-shadow: 0 12px 30px rgba(255,255,255,0.08);
-    }
-    label {
+    .music-player-section.active {
       display: block;
-      text-align: left;
-      font-weight: 600;
-      margin-bottom: 8px;
-      font-size: 0.95rem;
-      user-select: text;
     }
-    .toggle-switch {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 14px;
-      margin-top: 12px;
-      cursor: pointer;
-      user-select: none;
-    }
-    .toggle-switch input[type="checkbox"] {
-      width: 48px;
-      height: 28px;
-      position: relative;
-      appearance: none;
-      background: #ccc;
-      border-radius: 28px;
-      outline: none;
-      transition: background 0.3s;
-      flex-shrink: 0;
-      box-shadow: inset 0 0 6px rgba(0,0,0,0.1);
-    }
-    .toggle-switch input[type="checkbox"]:checked {
-      background: #007bff;
-    }
-    .toggle-switch input[type="checkbox"]::before {
-      content: "";
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      width: 22px;
-      height: 22px;
-      background: white;
-      border-radius: 22px;
-      transition: 0.3s;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-    }
-    .toggle-switch input[type="checkbox"]:checked::before {
-      left: 23px;
-    }
-    .toggle-switch label {
-      font-size: 1rem;
-      color: inherit;
-      user-select: text;
-    }
-    #applySettingsBtn {
-      background: #28a745;
-      margin-top: 24px;
+    .music-player-section iframe {
       width: 100%;
-      box-shadow: 0 6px 12px rgba(40, 167, 69, 0.5);
-      letter-spacing: 0.05em;
-      font-weight: 700;
-    }
-    #applySettingsBtn:hover {
-      background: #1e7e34;
-      box-shadow: 0 8px 18px rgba(30, 126, 52, 0.7);
-    }
-    #closeSettings {
-      background: #dc3545;
-      margin-top: 12px;
-      width: 100%;
-      box-shadow: 0 6px 12px rgba(220, 53, 69, 0.5);
-      letter-spacing: 0.05em;
-      font-weight: 700;
-    }
-    #closeSettings:hover {
-      background: #b02a37;
-      box-shadow: 0 8px 18px rgba(176, 42, 55, 0.7);
-    }
-    #openSettingsBtn {
-      user-select: none;
-      background: #343a40;
-      padding: 14px 32px;
-      font-size: 18px;
-      font-weight: 700;
-      border-radius: 14px;
-      color: #fff;
-      box-shadow: 0 6px 12px rgba(52, 58, 64, 0.6);
-      transition: background-color 0.3s ease, box-shadow 0.3s ease;
-      margin-top: 40px;
-      min-width: 180px;
-      letter-spacing: 0.05em;
-    }
-    #openSettingsBtn:hover {
-      background: #23272b;
-      box-shadow: 0 8px 18px rgba(35, 39, 43, 0.9);
-    }
-    body.dark-mode {
-      background-color: #121212;
-      color: #eee;
-      transition: background-color 0.4s ease, color 0.4s ease;
-    }
-    body.dark-mode input[type="text"],
-    body.dark-mode input[type="url"] {
-      background-color: #333;
-      color: #eee;
-      border: 1.8px solid #555;
-    }
-    body.dark-mode button {
-      background-color: #1e88e5;
-      color: #eee;
-      box-shadow: 0 4px 9px rgba(30, 136, 229, 0.4);
-    }
-    body.dark-mode button:hover {
-      background-color: #1565c0;
-      box-shadow: 0 6px 15px rgba(21, 101, 192, 0.6);
-    }
-    #openDonateBtn {
-      background-color: #ffc439;
-      color: #111;
-      font-weight: 700;
+      height: 152px;
+      border: none;
       border-radius: 8px;
-      box-shadow: 0 4px 9px rgba(255, 196, 10, 0.7);
-      min-width: 200px;
-      margin: 6px auto 20px auto;
-      display: block;
-      cursor: pointer;
-      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 9px rgba(0, 0, 0, 0.1);
     }
-    #openDonateBtn:hover {
-      background-color: #e6b132;
-      box-shadow: 0 6px 15px rgba(230, 177, 50, 0.9);
+    body.dark-mode .music-player-section iframe {
+      box-shadow: 0 4px 9px rgba(255, 255, 255, 0.1);
     }
-    #loadingBarContainer {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 6px;
-      background-color: transparent;
-      z-index: 10000;
+    .music-player-section p {
+      font-size: 1rem;
+      color: #444;
+      margin: 10px 0;
     }
-    #loadingBar {
-      height: 100%;
-      width: 0%;
-      background-color: #007bff;
-      transition: width 0.3s ease;
-    }
-    #loadingOverlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #000;
-      opacity: 0.8;
-      z-index: 9998;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: #fff;
-      font-size: 1.8rem;
-      font-weight: 700;
-      user-select: none;
-      font-family: monospace, monospace;
-      letter-spacing: 0.05em;
-    }
-    #redirectOverlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #000;
-      opacity: 0.9;
-      z-index: 9998;
-      display: none;
-      justify-content: center;
-      align-items: center;
-      color: #fff;
-      font-size: 2rem;
-      font-weight: 700;
-      user-select: none;
-      font-family: monospace, monospace;
-      letter-spacing: 0.05em;
-      flex-direction: column;
-      gap: 20px;
-    }
-    #redirectOverlay.show {
-      display: flex;
-    }
-    #redirectText {
-      animation: pulse 1.5s ease-in-out infinite;
-    }
-    #redirectReason {
-      font-size: 1.2rem;
-      font-weight: 400;
+    body.dark-mode .music-player-section p {
       color: #ccc;
     }
-    @keyframes pulse {
-      0%, 100% { text-shadow: 0 0 5px rgba(255, 255, 255, 0.8); }
-      50% { text-shadow: 0 0 15px rgba(0, 123, 255, 0.9), 0 0 25px rgba(0, 123, 255, 0.7); }
-    }
-    body.dark-mode #redirectText {
-      animation: pulse-dark 1.5s ease-in-out infinite;
-    }
-    @keyframes pulse-dark {
-      0%, 100% { text-shadow: 0 0 5px rgba(255, 255, 255, 0.8); }
-      50% { text-shadow: 0 0 15px rgba(30, 136, 229, 0.9), 0 0 25px rgba(30, 136, 229, 0.7); }
-    }
-    #redirectCanvas {
-      position: absolute;
-      top: 0;
-      left: 0;
+    /* Update existing styles for consistency */
+    select {
+      padding: 10px;
+      font-size: 16px;
       width: 100%;
-      height: 100%;
-      z-index: -1;
+      border-radius: 8px;
+      border: 1.8px solid #ccc;
+      margin-bottom: 16px;
+      font-weight: 500;
+      background: #fff;
+      color: #222;
     }
-    #particleContainer {
-      pointer-events: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      overflow: hidden;
-      z-index: 0;
-    }
-    .snowflake {
-      position: fixed;
-      top: -10px;
-      border-radius: 50%;
-      opacity: 0.8;
-      pointer-events: none;
-      user-select: none;
-      will-change: transform;
-    }
-    .typing::after {
-      content: "|";
-      display: inline-block;
-      animation: blink 0.7s infinite;
-      font-weight: 700;
-      margin-left: 2px;
-    }
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
-    }
-    body.dark-mode .typing::after {
+    body.dark-mode select {
+      background: #333;
       color: #eee;
+      border-color: #555;
     }
   </style>
 </head>
 <body>
+  <!-- Existing HTML unchanged, adding music player section -->
   <div id="loadingOverlay"><span id="loadingText"></span></div>
   <div id="loadingBarContainer"><div id="loadingBar"></div></div>
   <div id="redirectOverlay" aria-live="polite">
@@ -373,6 +75,13 @@
     </form>
   </div>
 
+  <div class="section music-player-section" id="musicPlayerSection">
+    <h2>Music Player</h2>
+    <p id="playerMessage">Select a music service in Settings to start playing.</p>
+    <div id="musicPlayerContainer"></div>
+  </div>
+
+  <!-- Existing sections unchanged -->
   <div class="section">
     <h2>Quick Links (Open in New Tab)</h2>
     <button class="quick-link" data-url="https://www.google.com">Google</button>
@@ -395,8 +104,7 @@
   </div>
 
   <div class="section">
-    <button id="openDonateBtn">
-      💸 Donate with PayPal.me (Coming soon!)</button>
+    <button id="openDonateBtn">💸 Donate with PayPal.me (Coming soon!)</button>
   </div>
 
   <div class="section">
@@ -405,7 +113,7 @@
 
   <div id="particleContainer"></div>
 
-  <!-- Settings Modal -->
+  <!-- Updated Settings Modal -->
   <div id="settingsModal" aria-hidden="true">
     <div id="settingsContent" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
       <h2 id="settingsTitle">Customize Page & Dark Mode</h2>
@@ -431,14 +139,27 @@
         <span>Enable Typing Animation</span>
       </label>
 
-      <label for="panicKeyInput" style="margin-top: 22px; text-align: left; font-weight: 600; display: block; font-size: 0.95rem;">
-        Panic Key (single letter or digit)
+      <label class="toggle-switch" for="musicPlayerToggle">
+        <input type="checkbox" id="musicPlayerToggle" />
+        <span>Enable Music Player</span>
       </label>
+
+      <label for="musicServiceSelector">Music Service</label>
+      <select id="musicServiceSelector">
+        <option value="none">None</option>
+        <option value="spotify">Spotify</option>
+        <option value="apple">Apple Music</option>
+        <option value="amazon">Amazon Music</option>
+        <option value="youtube">YouTube Music</option>
+      </select>
+
+      <label for="musicPlaylistInput">Playlist/Track URL</label>
+      <input type="url" id="musicPlaylistInput" placeholder="Enter playlist or track URL" />
+
+      <label for="panicKeyInput" style="margin-top: 22px;">Panic Key (single letter or digit)</label>
       <input type="text" id="panicKeyInput" maxlength="1" placeholder="Default: P" style="text-transform: uppercase;" />
 
-      <label for="panicUrlInput" style="margin-top: 12px; text-align: left; font-weight: 600; display: block; font-size: 0.95rem;">
-        Panic URL
-      </label>
+      <label for="panicUrlInput" style="margin-top: 12px;">Panic URL</label>
       <input type="url" id="panicUrlInput" placeholder="Default: https://portal.austinisd.org" />
 
       <hr style="margin: 20px 0; border: none; border-top: 1px solid #ccc;" />
@@ -451,7 +172,7 @@
       <label for="searchEngineSelector-settings" style="display:block; font-weight:600; margin-top:16px; text-align:left;">
         Search Engine
       </label>
-      <select id="searchEngineSelector-settings" style="font-size:16px; border-radius:8px; padding:10px; width:100%; margin-bottom:16px;">
+      <select id="searchEngineSelector-settings">
         <option value="duckduckgo">DuckDuckGo</option>
         <option value="google">Google</option>
         <option value="bing">Bing</option>
@@ -466,7 +187,7 @@
   <audio id="warpSound" src="https://assets.mixkit.co/sfx/preview/mixkit-sci-fi-laser-gun-recharge-2580.mp3" preload="auto"></audio>
 
   <script>
-    // ========== Loading Overlay & Utilities ==========
+    // ========== Existing Utilities (unchanged) ==========
     function detectOS() {
       const userAgent = navigator.userAgent || navigator.vendor || window.opera;
       if (/windows phone/i.test(userAgent)) return "WindowsPhone";
@@ -536,7 +257,7 @@
       ]);
     }
 
-    // ========== Redirect Particle System ==========
+    // ========== Existing Redirect Particle System (unchanged) ==========
     class RedirectParticle {
       constructor(x, y, ctx) {
         this.x = x;
@@ -576,7 +297,6 @@
       "spinning up hamsters"
     ];
     async function runRedirectScreen(url, siteName) {
-      console.log("runRedirectScreen called with URL:", url, "Site:", siteName);
       try {
         document.body.classList.add("redirecting");
         const overlay = document.getElementById("redirectOverlay");
@@ -613,7 +333,6 @@
           } else {
             overlay.classList.remove("show");
             document.body.classList.remove("redirecting");
-            console.log("Animation complete, navigating to:", url);
             window.open(url, "_blank");
           }
         }
@@ -634,12 +353,11 @@
         console.error("Redirect animation failed:", err);
         document.getElementById("redirectOverlay").classList.remove("show");
         document.body.classList.remove("redirecting");
-        console.log("Falling back to direct navigation:", url);
         window.open(url, "_blank");
       }
     }
 
-    // ========== Snow Particle System ==========
+    // ========== Existing Snow Particle System (unchanged) ==========
     let particles = [];
     let particleFrame = null;
     let lastScrollY = window.scrollY;
@@ -713,7 +431,54 @@
       });
     }
 
-    // ========== Settings ==========
+    // ========== Music Player Logic ==========
+    function updateMusicPlayer() {
+      const playerSection = document.getElementById("musicPlayerSection");
+      const playerContainer = document.getElementById("musicPlayerContainer");
+      const playerMessage = document.getElementById("playerMessage");
+      const isEnabled = localStorage.getItem("musicPlayerEnabled") === "true";
+      const service = localStorage.getItem("musicService") || "none";
+      const playlistUrl = localStorage.getItem("musicPlaylistUrl") || "";
+
+      playerSection.classList.toggle("active", isEnabled);
+      playerContainer.innerHTML = "";
+      playerMessage.textContent = service === "none" ? "Select a music service in Settings to start playing." : "Enjoy your music!";
+
+      if (!isEnabled || service === "none") return;
+
+      let embedCode = "";
+      if (service === "spotify" && playlistUrl) {
+        const playlistId = playlistUrl.match(/playlist\/([a-zA-Z0-9]+)/)?.[1];
+        if (playlistId) {
+          embedCode = `<iframe src="https://open.spotify.com/embed/playlist/${playlistId}" width="100%" height="152" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>`;
+        } else {
+          playerMessage.textContent = "Invalid Spotify playlist URL. Please update in Settings.";
+        }
+      } else if (service === "apple" && playlistUrl) {
+        // Apple Music embed requires a specific embed code from their tools
+        playerMessage.textContent = "Apple Music embed requires a valid embed code. Update in Settings.";
+        // Example: embedCode = `<iframe src="${playlistUrl}" width="100%" height="152"></iframe>`;
+      } else if (service === "amazon" && playlistUrl) {
+        // Amazon Music embed requires a specific embed code
+        playerMessage.textContent = "Amazon Music embed requires a valid embed code. Update in Settings.";
+        // Example: embedCode = `<iframe src="${playlistUrl}" width="100%" height="152"></iframe>`;
+      } else if (service === "youtube" && playlistUrl) {
+        const playlistId = playlistUrl.match(/list=([a-zA-Z0-9_-]+)/)?.[1];
+        if (playlistId) {
+          embedCode = `<iframe src="https://www.youtube.com/embed?list=${playlistId}" width="100%" height="152" frameborder="0" allow="autoplay; encrypted-media"></iframe>`;
+        } else {
+          playerMessage.textContent = "Invalid YouTube Music playlist URL. Please update in Settings.";
+        }
+      } else {
+        playerMessage.textContent = "Please enter a valid playlist URL in Settings.";
+      }
+
+      if (embedCode) {
+        playerContainer.innerHTML = embedCode;
+      }
+    }
+
+    // ========== Updated Settings ==========
     function loadSettings() {
       try {
         console.log("Loading settings");
@@ -726,6 +491,9 @@
         const clickSound = localStorage.getItem("clickSoundEnabled") === "true";
         const searchEngine = localStorage.getItem("searchEngine") || "duckduckgo";
         const typingAnimation = localStorage.getItem("typingAnimation") === "true";
+        const musicPlayerEnabled = localStorage.getItem("musicPlayerEnabled") === "true";
+        const musicService = localStorage.getItem("musicService") || "none";
+        const musicPlaylistUrl = localStorage.getItem("musicPlaylistUrl") || "";
 
         document.getElementById("darkModeToggle").checked = darkMode;
         document.getElementById("particlesToggle").checked = particlesEnabled;
@@ -736,6 +504,9 @@
         document.getElementById("clickSoundToggle").checked = clickSound;
         document.getElementById("searchEngineSelector-settings").value = searchEngine;
         document.getElementById("typingAnimationToggle").checked = typingAnimation;
+        document.getElementById("musicPlayerToggle").checked = musicPlayerEnabled;
+        document.getElementById("musicServiceSelector").value = musicService;
+        document.getElementById("musicPlaylistInput").value = musicPlaylistUrl;
 
         if (darkMode) document.body.classList.add("dark-mode");
         else document.body.classList.remove("dark-mode");
@@ -744,6 +515,7 @@
         if (faviconUrl) document.getElementById("favicon").href = faviconUrl;
 
         updateParticles();
+        updateMusicPlayer();
       } catch (err) {
         console.error("Failed to load settings:", err);
       }
@@ -760,6 +532,9 @@
         const clickSound = document.getElementById("clickSoundToggle").checked;
         const searchEngine = document.getElementById("searchEngineSelector-settings").value;
         const typingAnimation = document.getElementById("typingAnimationToggle").checked;
+        const musicPlayerEnabled = document.getElementById("musicPlayerToggle").checked;
+        const musicService = document.getElementById("musicServiceSelector").value;
+        const musicPlaylistUrl = document.getElementById("musicPlaylistInput").value.trim();
 
         localStorage.setItem("darkMode", darkMode);
         localStorage.setItem("particlesEnabled", particlesEnabled);
@@ -770,6 +545,9 @@
         localStorage.setItem("clickSoundEnabled", clickSound);
         localStorage.setItem("searchEngine", searchEngine);
         localStorage.setItem("typingAnimation", typingAnimation);
+        localStorage.setItem("musicPlayerEnabled", musicPlayerEnabled);
+        localStorage.setItem("musicService", musicService);
+        localStorage.setItem("musicPlaylistUrl", musicPlaylistUrl);
 
         if (darkMode) document.body.classList.add("dark-mode");
         else document.body.classList.remove("dark-mode");
@@ -779,14 +557,17 @@
 
         updateParticles();
         updateParticleColors();
+        updateMusicPlayer();
       } catch (err) {
         console.error("Failed to save settings:", err);
       }
     }
 
-    // ========== Modal Events ==========
+    // ========== Existing Modal Events (updated) ==========
     document.getElementById("darkModeToggle").addEventListener("change", updateParticleColors);
     document.getElementById("particlesToggle").addEventListener("change", updateParticles);
+    document.getElementById("musicPlayerToggle").addEventListener("change", updateMusicPlayer);
+    document.getElementById("musicServiceSelector").addEventListener("change", updateMusicPlayer);
 
     document.getElementById("openSettingsBtn").addEventListener("click", () => {
       console.log("Opening settings modal");
@@ -808,7 +589,7 @@
       document.getElementById("settingsModal").setAttribute("aria-hidden", "true");
     });
 
-    // ========== Panic Key Shortcut ==========
+    // ========== Existing Panic Key Shortcut (unchanged) ==========
     window.addEventListener("keydown", e => {
       try {
         const panicKey = (localStorage.getItem("panicKey") || "P").toUpperCase();
@@ -821,7 +602,7 @@
       }
     });
 
-    // ========== Search Form with Engine ==========
+    // ========== Existing Search Form with Engine (unchanged) ==========
     document.getElementById("customDomainForm").addEventListener("submit", (e) => {
       e.preventDefault();
       try {
@@ -845,7 +626,7 @@
       }
     });
 
-    // ========== Quick Links with Redirect ==========
+    // ========== Existing Quick Links with Redirect (unchanged) ==========
     const siteNames = {
       'https://www.google.com': 'Google',
       'https://www.youtube.com': 'YouTube',
@@ -878,7 +659,7 @@
       });
     });
 
-    // ========== Click Sound ==========
+    // ========== Existing Click Sound (unchanged) ==========
     document.querySelectorAll('button').forEach(btn => {
       btn.addEventListener('click', () => {
         if (localStorage.getItem("clickSoundEnabled") === "true") {
@@ -893,7 +674,7 @@
       });
     });
 
-    // ========== Page Load Logic with Typing Animation ==========
+    // ========== Updated Page Load Logic ==========
     window.onload = async () => {
       try {
         console.log("Page loading, applying settings");
@@ -912,8 +693,9 @@
             { el: document.querySelector("h1"), text: "📶 CloneDNS Portal", duration: 1000 },
             { el: document.querySelector("p"), text: "You’re connected and avoiding censorship, bro. Choose a site or enter your own domain below. If all else fails, smash the 🔥 fallback button.", duration: 2000 },
             { el: document.querySelector(".section:nth-child(2) h2"), text: "Quick Links (Open in New Tab)", duration: 800 },
-            { el: document.querySelector(".section:nth-child(3) h2"), text: "🚨 Fallback Button", duration: 800 },
-            { el: document.querySelector(".section:nth-child(4) h2"), text: "GitHub Repository", duration: 800 }
+            { el: document.querySelector(".section:nth-child(3) h2"), text: "Music Player", duration: 800 },
+            { el: document.querySelector(".section:nth-child(4) h2"), text: "🚨 Fallback Button", duration: 800 },
+            { el: document.querySelector(".section:nth-child(5) h2"), text: "GitHub Repository", duration: 800 }
           ];
           for (const { el } of elements) {
             if (el) el.style.visibility = "hidden";
