@@ -6,36 +6,72 @@
   <title>Wi-Fi Configuration Utility</title>
   <link id="favicon" rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/6/6a/Wi-Fi_icon.svg" />
   <style>
-    /* Existing styles unchanged, adding new styles for music player */
+    /* Existing styles unchanged, adding refined music player styles */
+    :root {
+      --primary-color: #007bff;
+      --bg-color: #f2f2f2;
+      --text-color: #222;
+      --shadow-color: rgba(0, 123, 255, 0.3);
+    }
+    body.dark-mode {
+      --primary-color: #1e88e5;
+      --bg-color: #121212;
+      --text-color: #eee;
+      --shadow-color: rgba(30, 136, 229, 0.4);
+    }
     .music-player-section {
       margin-top: 28px;
       max-width: 600px;
       margin-left: auto;
       margin-right: auto;
-      display: none; /* Hidden by default */
+      display: none;
+      background: var(--bg-color);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 9px var(--shadow-color);
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      opacity: 0;
+      transform: translateY(20px);
     }
     .music-player-section.active {
       display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .music-player-section.mini-player {
+      max-width: 300px;
+      padding: 10px;
     }
     .music-player-section iframe {
       width: 100%;
-      height: 152px;
+      height: 80px; /* Smaller height for mini-player aesthetic */
       border: none;
       border-radius: 8px;
-      box-shadow: 0 4px 9px rgba(0, 0, 0, 0.1);
+      background: #fff;
+      transition: height 0.3s ease;
+    }
+    .music-player-section:not(.mini-player) iframe {
+      height: 152px; /* Standard height for full player */
     }
     body.dark-mode .music-player-section iframe {
-      box-shadow: 0 4px 9px rgba(255, 255, 255, 0.1);
+      background: #333;
+    }
+    .music-player-section h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--text-color);
     }
     .music-player-section p {
       font-size: 1rem;
-      color: #444;
+      color: #666;
       margin: 10px 0;
+      font-weight: 500;
     }
     body.dark-mode .music-player-section p {
-      color: #ccc;
+      color: #aaa;
     }
-    /* Update existing styles for consistency */
+    /* Update select styles for consistency */
     select {
       padding: 10px;
       font-size: 16px;
@@ -45,17 +81,53 @@
       margin-bottom: 16px;
       font-weight: 500;
       background: #fff;
-      color: #222;
+      color: var(--text-color);
+      transition: border-color 0.3s ease;
     }
     body.dark-mode select {
       background: #333;
-      color: #eee;
       border-color: #555;
     }
+    select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 8px var(--shadow-color);
+    }
+    /* Existing styles (unchanged, summarized) */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      padding: 40px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      transition: background-color 0.4s ease, color 0.4s ease;
+      user-select: none;
+      overflow-x: hidden;
+    }
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 28px;
+      font-size: 16px;
+      font-weight: 600;
+      background: var(--primary-color);
+      color: white;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 9px var(--shadow-color);
+      margin: 6px 8px 20px;
+      min-width: 120px;
+      letter-spacing: 0.04em;
+    }
+    button:hover {
+      background: #0056b3;
+      box-shadow: 0 6px 15px rgba(0, 86, 179, 0.5);
+    }
+    /* ... other existing styles ... */
   </style>
 </head>
 <body>
-  <!-- Existing HTML unchanged, adding music player section -->
+  <!-- Existing HTML, adding refined music player section -->
   <div id="loadingOverlay"><span id="loadingText"></span></div>
   <div id="loadingBarContainer"><div id="loadingBar"></div></div>
   <div id="redirectOverlay" aria-live="polite">
@@ -65,7 +137,7 @@
   </div>
 
   <h1>📶 CloneDNS Portal</h1>
-  <p>You’re connected and avoiding censorship, bro. Choose a site or enter your own domain below. If all else fails, smash the 🔥 fallback button.</p>
+  <p>🎧 Enjoy music while bypassing censorship! Pick a site, enter a domain, or vibe with the player below.</p>
 
   <div class="section">
     <form id="customDomainForm">
@@ -75,13 +147,12 @@
     </form>
   </div>
 
-  <div class="section music-player-section" id="musicPlayerSection">
-    <h2>Music Player</h2>
-    <p id="playerMessage">Select a music service in Settings to start playing.</p>
+  <div class="section music-player-section" id="musicPlayerSection" aria-hidden="true">
+    <h2>🎵 Music Player</h2>
+    <p id="playerMessage">Select a music service in Settings to start jamming!</p>
     <div id="musicPlayerContainer"></div>
   </div>
 
-  <!-- Existing sections unchanged -->
   <div class="section">
     <h2>Quick Links (Open in New Tab)</h2>
     <button class="quick-link" data-url="https://www.google.com">Google</button>
@@ -116,7 +187,7 @@
   <!-- Updated Settings Modal -->
   <div id="settingsModal" aria-hidden="true">
     <div id="settingsContent" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
-      <h2 id="settingsTitle">Customize Page & Dark Mode</h2>
+      <h2 id="settingsTitle">Customize Page & Music</h2>
 
       <label for="pageTitleInput">Page Title</label>
       <input type="text" id="pageTitleInput" placeholder="Enter new page title" />
@@ -144,17 +215,21 @@
         <span>Enable Music Player</span>
       </label>
 
+      <label class="toggle-switch" for="miniPlayerToggle">
+        <input type="checkbox" id="miniPlayerToggle" />
+        <span>Use Mini Player</span>
+      </label>
+
       <label for="musicServiceSelector">Music Service</label>
-      <select id="musicServiceSelector">
+      <select id="musicServiceSelector" aria-describedby="musicServiceHelp">
         <option value="none">None</option>
         <option value="spotify">Spotify</option>
-        <option value="apple">Apple Music</option>
-        <option value="amazon">Amazon Music</option>
         <option value="youtube">YouTube Music</option>
       </select>
+      <p id="musicServiceHelp" class="help-text">Enter a playlist URL for Spotify or YouTube Music.</p>
 
       <label for="musicPlaylistInput">Playlist/Track URL</label>
-      <input type="url" id="musicPlaylistInput" placeholder="Enter playlist or track URL" />
+      <input type="url" id="musicPlaylistInput" placeholder="e.g., https://open.spotify.com/playlist/..." />
 
       <label for="panicKeyInput" style="margin-top: 22px;">Panic Key (single letter or digit)</label>
       <input type="text" id="panicKeyInput" maxlength="1" placeholder="Default: P" style="text-transform: uppercase;" />
@@ -286,16 +361,6 @@
         this.ctx.globalAlpha = 1;
       }
     }
-    const funnyReasons = [
-      "fetching packets",
-      "untangling cables",
-      "convincing server",
-      "warming up the tubes",
-      "polishing pixels",
-      "chasing electrons",
-      "bribing the firewall",
-      "spinning up hamsters"
-    ];
     async function runRedirectScreen(url, siteName) {
       try {
         document.body.classList.add("redirecting");
@@ -343,7 +408,7 @@
           warpAudio.play().catch(err => console.error("Warp sound playback failed:", err));
         }
 
-        const reason = funnyReasons[Math.floor(Math.random() * funnyReasons.length)];
+        const reason = ["jamming to tunes", "mixing the beats", "syncing the vibe", "tuning the server"][Math.floor(Math.random() * 4)];
         await Promise.all([
           typeLoadingText(`Loading ${siteName}...`, 1000, document.getElementById("redirectText")),
           typeLoadingText(reason, 800, document.getElementById("redirectReason"))
@@ -431,18 +496,21 @@
       });
     }
 
-    // ========== Music Player Logic ==========
+    // ========== Refined Music Player Logic ==========
     function updateMusicPlayer() {
       const playerSection = document.getElementById("musicPlayerSection");
       const playerContainer = document.getElementById("musicPlayerContainer");
       const playerMessage = document.getElementById("playerMessage");
       const isEnabled = localStorage.getItem("musicPlayerEnabled") === "true";
+      const isMiniPlayer = localStorage.getItem("miniPlayerEnabled") === "true";
       const service = localStorage.getItem("musicService") || "none";
       const playlistUrl = localStorage.getItem("musicPlaylistUrl") || "";
 
       playerSection.classList.toggle("active", isEnabled);
+      playerSection.classList.toggle("mini-player", isMiniPlayer && isEnabled);
+      playerSection.setAttribute("aria-hidden", !isEnabled);
       playerContainer.innerHTML = "";
-      playerMessage.textContent = service === "none" ? "Select a music service in Settings to start playing." : "Enjoy your music!";
+      playerMessage.textContent = service === "none" ? "Select a music service in Settings to start jamming! 🎧" : "Enjoy your music! 🎶";
 
       if (!isEnabled || service === "none") return;
 
@@ -450,31 +518,28 @@
       if (service === "spotify" && playlistUrl) {
         const playlistId = playlistUrl.match(/playlist\/([a-zA-Z0-9]+)/)?.[1];
         if (playlistId) {
-          embedCode = `<iframe src="https://open.spotify.com/embed/playlist/${playlistId}" width="100%" height="152" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>`;
+          embedCode = `<iframe src="https://open.spotify.com/embed/playlist/${playlistId}?theme=${document.body.classList.contains("dark-mode") ? "0" : "1"}" width="100%" height="${isMiniPlayer ? 80 : 152}" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>`;
         } else {
-          playerMessage.textContent = "Invalid Spotify playlist URL. Please update in Settings.";
+          playerMessage.textContent = "Oops! Invalid Spotify playlist URL. Check Settings. 😕";
         }
-      } else if (service === "apple" && playlistUrl) {
-        // Apple Music embed requires a specific embed code from their tools
-        playerMessage.textContent = "Apple Music embed requires a valid embed code. Update in Settings.";
-        // Example: embedCode = `<iframe src="${playlistUrl}" width="100%" height="152"></iframe>`;
-      } else if (service === "amazon" && playlistUrl) {
-        // Amazon Music embed requires a specific embed code
-        playerMessage.textContent = "Amazon Music embed requires a valid embed code. Update in Settings.";
-        // Example: embedCode = `<iframe src="${playlistUrl}" width="100%" height="152"></iframe>`;
       } else if (service === "youtube" && playlistUrl) {
         const playlistId = playlistUrl.match(/list=([a-zA-Z0-9_-]+)/)?.[1];
         if (playlistId) {
-          embedCode = `<iframe src="https://www.youtube.com/embed?list=${playlistId}" width="100%" height="152" frameborder="0" allow="autoplay; encrypted-media"></iframe>`;
+          embedCode = `<iframe src="https://www.youtube.com/embed?list=${playlistId}&autoplay=0" width="100%" height="${isMiniPlayer ? 80 : 152}" frameborder="0" allow="autoplay; encrypted-media"></iframe>`;
         } else {
-          playerMessage.textContent = "Invalid YouTube Music playlist URL. Please update in Settings.";
+          playerMessage.textContent = "Oops! Invalid YouTube Music playlist URL. Check Settings. 😕";
         }
       } else {
-        playerMessage.textContent = "Please enter a valid playlist URL in Settings.";
+        playerMessage.textContent = "Please enter a valid playlist URL in Settings. 😕";
       }
 
       if (embedCode) {
         playerContainer.innerHTML = embedCode;
+        if (localStorage.getItem("clickSoundEnabled") === "true") {
+          const audio = document.getElementById("clickSound");
+          audio.currentTime = 0;
+          audio.play().catch(err => console.error("Click sound failed:", err));
+        }
       }
     }
 
@@ -492,6 +557,7 @@
         const searchEngine = localStorage.getItem("searchEngine") || "duckduckgo";
         const typingAnimation = localStorage.getItem("typingAnimation") === "true";
         const musicPlayerEnabled = localStorage.getItem("musicPlayerEnabled") === "true";
+        const miniPlayerEnabled = localStorage.getItem("miniPlayerEnabled") === "true";
         const musicService = localStorage.getItem("musicService") || "none";
         const musicPlaylistUrl = localStorage.getItem("musicPlaylistUrl") || "";
 
@@ -505,6 +571,7 @@
         document.getElementById("searchEngineSelector-settings").value = searchEngine;
         document.getElementById("typingAnimationToggle").checked = typingAnimation;
         document.getElementById("musicPlayerToggle").checked = musicPlayerEnabled;
+        document.getElementById("miniPlayerToggle").checked = miniPlayerEnabled;
         document.getElementById("musicServiceSelector").value = musicService;
         document.getElementById("musicPlaylistInput").value = musicPlaylistUrl;
 
@@ -533,6 +600,7 @@
         const searchEngine = document.getElementById("searchEngineSelector-settings").value;
         const typingAnimation = document.getElementById("typingAnimationToggle").checked;
         const musicPlayerEnabled = document.getElementById("musicPlayerToggle").checked;
+        const miniPlayerEnabled = document.getElementById("miniPlayerToggle").checked;
         const musicService = document.getElementById("musicServiceSelector").value;
         const musicPlaylistUrl = document.getElementById("musicPlaylistInput").value.trim();
 
@@ -546,6 +614,7 @@
         localStorage.setItem("searchEngine", searchEngine);
         localStorage.setItem("typingAnimation", typingAnimation);
         localStorage.setItem("musicPlayerEnabled", musicPlayerEnabled);
+        localStorage.setItem("miniPlayerEnabled", miniPlayerEnabled);
         localStorage.setItem("musicService", musicService);
         localStorage.setItem("musicPlaylistUrl", musicPlaylistUrl);
 
@@ -563,16 +632,21 @@
       }
     }
 
-    // ========== Existing Modal Events (updated) ==========
-    document.getElementById("darkModeToggle").addEventListener("change", updateParticleColors);
+    // ========== Modal Events (updated) ==========
+    document.getElementById("darkModeToggle").addEventListener("change", () => {
+      updateParticleColors();
+      updateMusicPlayer(); // Update player theme
+    });
     document.getElementById("particlesToggle").addEventListener("change", updateParticles);
     document.getElementById("musicPlayerToggle").addEventListener("change", updateMusicPlayer);
+    document.getElementById("miniPlayerToggle").addEventListener("change", updateMusicPlayer);
     document.getElementById("musicServiceSelector").addEventListener("change", updateMusicPlayer);
 
     document.getElementById("openSettingsBtn").addEventListener("click", () => {
       console.log("Opening settings modal");
       document.getElementById("settingsModal").classList.add("show");
       document.getElementById("settingsModal").setAttribute("aria-hidden", "false");
+      document.getElementById("musicServiceSelector").focus();
     });
 
     document.getElementById("closeSettings").addEventListener("click", () => {
@@ -611,22 +685,22 @@
         const engine = localStorage.getItem("searchEngine") || "duckduckgo";
         if (!input) return;
         if (input.startsWith("http://") || input.startsWith("https://")) {
-          window.location.href = input;
+          runRedirectScreen(input, input);
         } else if (input.includes(".")) {
-          window.location.href = "https://" + input;
+          runRedirectScreen("https://" + input, input);
         } else {
           let searchURL = "";
           if (engine === "google") searchURL = `https://www.google.com/search?q=${encodeURIComponent(input)}`;
           else if (engine === "bing") searchURL = `https://www.bing.com/search?q=${encodeURIComponent(input)}`;
           else searchURL = `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
-          window.location.href = searchURL;
+          runRedirectScreen(searchURL, "Search");
         }
       } catch (err) {
         console.error("Form submission failed:", err);
       }
     });
 
-    // ========== Existing Quick Links with Redirect (unchanged) ==========
+    // ========== Existing Quick Links with Redirect (updated for consistency) ==========
     const siteNames = {
       'https://www.google.com': 'Google',
       'https://www.youtube.com': 'YouTube',
@@ -691,9 +765,9 @@
           console.log("Running typing animation");
           const elements = [
             { el: document.querySelector("h1"), text: "📶 CloneDNS Portal", duration: 1000 },
-            { el: document.querySelector("p"), text: "You’re connected and avoiding censorship, bro. Choose a site or enter your own domain below. If all else fails, smash the 🔥 fallback button.", duration: 2000 },
-            { el: document.querySelector(".section:nth-child(2) h2"), text: "Quick Links (Open in New Tab)", duration: 800 },
-            { el: document.querySelector(".section:nth-child(3) h2"), text: "Music Player", duration: 800 },
+            { el: document.querySelector("p"), text: "🎧 Enjoy music while bypassing censorship! Pick a site, enter a domain, or vibe with the player below.", duration: 2000 },
+            { el: document.querySelector(".section:nth-child(2) h2"), text: "🎵 Music Player", duration: 800 },
+            { el: document.querySelector(".section:nth-child(3) h2"), text: "Quick Links (Open in New Tab)", duration: 800 },
             { el: document.querySelector(".section:nth-child(4) h2"), text: "🚨 Fallback Button", duration: 800 },
             { el: document.querySelector(".section:nth-child(5) h2"), text: "GitHub Repository", duration: 800 }
           ];
