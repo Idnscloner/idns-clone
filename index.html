@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Wi-Fi Configuration Utility</title>
+  <title>📶 CloneDNS Portal</title>
   <link id="favicon" rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/6/6a/Wi-Fi_icon.svg" />
   <style>
     /* CSS Variables for Consistency */
@@ -98,6 +98,7 @@
       transition: transform 0.3s ease, opacity 0.3s ease;
       opacity: 0;
       transform: translateY(20px);
+      min-height: 200px;
     }
     .music-player-section.active {
       display: block;
@@ -122,7 +123,7 @@
     .music-player-section p {
       font-size: 1rem;
       color: #666;
-      margin: 0 0 12px;
+      margin: 0 0 16px;
       font-weight: 500;
       line-height: 1.4;
     }
@@ -141,7 +142,7 @@
       background: #333;
     }
     .music-player-section.size-small iframe {
-      height: 152px;
+      height: 200px;
     }
     .music-player-section.size-medium iframe {
       height: 352px;
@@ -171,9 +172,10 @@
       border-radius: 12px;
       max-width: 500px;
       width: 90%;
-      max-height: 80vh;
+      max-height: 85vh;
       overflow-y: auto;
       box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+      margin-bottom: 20px;
     }
     #settingsContent h2 {
       font-size: 1.8rem;
@@ -241,6 +243,27 @@
     }
     body.dark-mode .help-text {
       color: #aaa;
+    }
+    /* Restore PayPal.me Button Color */
+    #openDonateBtn {
+      background: var(--primary-color);
+      color: white;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 9px var(--shadow-color);
+    }
+    #openDonateBtn:hover {
+      background: #0056b3;
+      box-shadow: 0 6px 15px rgba(0, 86, 179, 0.5);
+    }
+    /* Particle Container Fix */
+    #particleContainer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
     }
     /* ... other existing styles (loading, redirect, particles) unchanged ... */
   </style>
@@ -334,7 +357,7 @@
 
       <label for="musicPlayerSize">Player Size</label>
       <select id="musicPlayerSize" aria-describedby="musicSizeHelp">
-        <option value="small">Small (152px)</option>
+        <option value="small">Small (200px)</option>
         <option value="medium">Medium (352px)</option>
         <option value="large">Large (552px)</option>
       </select>
@@ -639,14 +662,14 @@
       if (service === "spotify" && playlistUrl) {
         const playlistId = playlistUrl.match(/playlist\/([a-zA-Z0-9]+)/)?.[1];
         if (playlistId) {
-          embedCode = `<iframe src="https://open.spotify.com/embed/playlist/${playlistId}?theme=${document.body.classList.contains("dark-mode") ? "0" : "1"}" width="100%" height="${playerSize === 'small' ? 152 : playerSize === 'medium' ? 352 : 552}" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>`;
+          embedCode = `<iframe src="https://open.spotify.com/embed/playlist/${playlistId}?theme=${document.body.classList.contains("dark-mode") ? "0" : "1"}" width="100%" height="${playerSize === 'small' ? 200 : playerSize === 'medium' ? 352 : 552}" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>`;
         } else {
           playerMessage.textContent = "Oops! Invalid Spotify playlist URL. Check Settings. 😕";
         }
       } else if (service === "youtube" && playlistUrl) {
         const playlistId = playlistUrl.match(/list=([a-zA-Z0-9_-]+)/)?.[1];
         if (playlistId) {
-          embedCode = `<iframe src="https://www.youtube.com/embed?list=${playlistId}&autoplay=0" width="100%" height="${playerSize === 'small' ? 152 : playerSize === 'medium' ? 352 : 552}" frameborder="0" allow="autoplay; encrypted-media"></iframe>`;
+          embedCode = `<iframe src="https://www.youtube.com/embed?list=${playlistId}&autoplay=0" width="100%" height="${playerSize === 'small' ? 200 : playerSize === 'medium' ? 352 : 552}" frameborder="0" allow="autoplay; encrypted-media"></iframe>`;
         } else {
           playerMessage.textContent = "Oops! Invalid YouTube Music playlist URL. Check Settings. 😕";
         }
