@@ -3,48 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>📶 CloneDNS Portal</title>
+  <title>Wi-Fi Configuration Utility</title>
   <link id="favicon" rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/6/6a/Wi-Fi_icon.svg" />
   <style>
-    /* CSS Variables for Consistency */
-    :root {
-      --primary-color: #007bff;
-      --bg-color: #f2f2f2;
-      --text-color: #222;
-      --shadow-color: rgba(0, 123, 255, 0.3);
-    }
-    body.dark-mode {
-      --primary-color: #1e88e5;
-      --bg-color: #121212;
-      --text-color: #eee;
-      --shadow-color: rgba(30, 136, 229, 0.4);
-    }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       text-align: center;
-      padding: 40px 20px;
-      background-color: var(--bg-color);
-      color: var(--text-color);
+      padding: 40px;
+      background-color: #f2f2f2;
+      color: #222;
       transition: background-color 0.4s ease, color 0.4s ease;
       user-select: none;
       overflow-x: hidden;
     }
-    h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
+    input[type="text"], input[type="url"] {
+      padding: 10px 12px;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
       margin-bottom: 16px;
+      border-radius: 8px;
+      border: 1.8px solid #ccc;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      font-weight: 500;
     }
-    p {
-      font-size: 1.2rem;
-      max-width: 600px;
-      margin: 0 auto 28px;
-      line-height: 1.5;
-    }
-    .section {
-      margin-top: 28px;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
+    input[type="text"]:focus, input[type="url"]:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 8px rgba(0,123,255,0.5);
     }
     button {
       cursor: pointer;
@@ -53,10 +39,11 @@
       padding: 12px 28px;
       font-size: 16px;
       font-weight: 600;
-      background: var(--primary-color);
+      background: #007bff;
       color: white;
       transition: background-color 0.3s ease, box-shadow 0.3s ease;
-      box-shadow: 0 4px 9px var(--shadow-color);
+      box-shadow: 0 4px 9px rgba(0, 123, 255, 0.3);
+      user-select: none;
       margin: 6px 8px 20px;
       min-width: 120px;
       letter-spacing: 0.04em;
@@ -65,207 +52,304 @@
       background: #0056b3;
       box-shadow: 0 6px 15px rgba(0, 86, 179, 0.5);
     }
-    input[type="text"],
-    input[type="url"] {
-      padding: 10px;
-      font-size: 16px;
-      width: calc(100% - 24px);
-      border-radius: 8px;
-      border: 1.8px solid #ccc;
-      margin-bottom: 16px;
-      font-weight: 500;
+    h1 {
+      font-weight: 700;
+      font-size: 2.8rem;
+      margin-bottom: 10px;
       user-select: text;
-      background: #fff;
-      color: var(--text-color);
     }
-    body.dark-mode input[type="text"],
-    body.dark-mode input[type="url"] {
-      background: #333;
-      border-color: #555;
-      color: #eee;
+    p {
+      font-size: 1.15rem;
+      margin-bottom: 30px;
+      user-select: text;
+      color: #444;
     }
-    /* Refined Music Player Section */
-    .music-player-section {
+    .section {
       margin-top: 28px;
       max-width: 600px;
       margin-left: auto;
       margin-right: auto;
-      display: none;
-      background: var(--bg-color);
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 9px var(--shadow-color);
-      transition: transform 0.3s ease, opacity 0.3s ease;
-      opacity: 0;
-      transform: translateY(20px);
-      min-height: 200px;
+      user-select: none;
     }
-    .music-player-section.active {
-      display: block;
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .music-player-section.size-small {
-      max-width: 400px;
-    }
-    .music-player-section.size-medium {
-      max-width: 600px;
-    }
-    .music-player-section.size-large {
-      max-width: 800px;
-    }
-    .music-player-section h2 {
-      font-size: 1.8rem;
-      font-weight: 700;
-      margin: 0 0 12px;
-      color: var(--text-color);
-    }
-    .music-player-section p {
-      font-size: 1rem;
-      color: #666;
-      margin: 0 0 16px;
-      font-weight: 500;
-      line-height: 1.4;
-    }
-    body.dark-mode .music-player-section p {
-      color: #aaa;
-    }
-    .music-player-section iframe {
-      width: 100%;
-      border: none;
-      border-radius: 8px;
-      background: #fff;
-      transition: height 0.3s ease;
-      margin-top: 12px;
-    }
-    body.dark-mode .music-player-section iframe {
-      background: #333;
-    }
-    .music-player-section.size-small iframe {
-      height: 200px;
-    }
-    .music-player-section.size-medium iframe {
-      height: 352px;
-    }
-    .music-player-section.size-large iframe {
-      height: 552px;
-    }
-    /* Settings Modal */
     #settingsModal {
-      display: none;
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-      align-items: center;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: none;
       justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.35s ease;
     }
     #settingsModal.show {
       display: flex;
+      opacity: 1;
     }
     #settingsContent {
-      background: var(--bg-color);
-      padding: 24px;
-      border-radius: 12px;
-      max-width: 500px;
-      width: 90%;
-      max-height: 85vh;
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 30px 36px;
+      width: 360px;
+      max-width: 90vw;
+      max-height: 80vh;
       overflow-y: auto;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-      margin-bottom: 20px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+      transform: scale(0.75);
+      opacity: 0;
+      transition: transform 0.35s ease, opacity 0.35s ease;
+      font-weight: 500;
+      color: #222;
+      user-select: text;
     }
-    #settingsContent h2 {
-      font-size: 1.8rem;
-      margin-bottom: 20px;
+    #settingsModal.show #settingsContent {
+      transform: scale(1);
+      opacity: 1;
+    }
+    body.dark-mode #settingsContent {
+      background: #2a2a2a;
+      color: #eee;
+      box-shadow: 0 12px 30px rgba(255,255,255,0.08);
+    }
+    label {
+      display: block;
+      text-align: left;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+      user-select: text;
     }
     .toggle-switch {
       display: flex;
       align-items: center;
-      margin-bottom: 16px;
-    }
-    .toggle-switch input {
-      appearance: none;
-      width: 40px;
-      height: 20px;
-      background: #ccc;
-      border-radius: 20px;
-      position: relative;
+      justify-content: flex-start;
+      gap: 14px;
+      margin-top: 12px;
       cursor: pointer;
-      margin-right: 10px;
-      transition: background 0.3s ease;
+      user-select: none;
     }
-    .toggle-switch input:checked {
-      background: var(--primary-color);
+    .toggle-switch input[type="checkbox"] {
+      width: 48px;
+      height: 28px;
+      position: relative;
+      appearance: none;
+      background: #ccc;
+      border-radius: 28px;
+      outline: none;
+      transition: background 0.3s;
+      flex-shrink: 0;
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.1);
     }
-    .toggle-switch input::before {
+    .toggle-switch input[type="checkbox"]:checked {
+      background: #007bff;
+    }
+    .toggle-switch input[type="checkbox"]::before {
       content: "";
       position: absolute;
-      width: 16px;
-      height: 16px;
-      background: #fff;
-      border-radius: 50%;
-      top: 2px;
-      left: 2px;
-      transition: transform 0.3s ease;
+      top: 3px;
+      left: 3px;
+      width: 22px;
+      height: 22px;
+      background: white;
+      border-radius: 22px;
+      transition: 0.3s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
     }
-    .toggle-switch input:checked::before {
-      transform: translateX(20px);
+    .toggle-switch input[type="checkbox"]:checked::before {
+      left: 23px;
     }
-    select {
-      padding: 10px;
-      font-size: 16px;
+    .toggle-switch label {
+      font-size: 1rem;
+      color: inherit;
+      user-select: text;
+    }
+    #applySettingsBtn {
+      background: #28a745;
+      margin-top: 24px;
       width: 100%;
-      border-radius: 8px;
-      border: 1.8px solid #ccc;
-      margin-bottom: 16px;
-      font-weight: 500;
-      background: #fff;
-      color: var(--text-color);
-      transition: border-color 0.3s ease;
+      box-shadow: 0 6px 12px rgba(40, 167, 69, 0.5);
+      letter-spacing: 0.05em;
+      font-weight: 700;
     }
-    body.dark-mode select {
-      background: #333;
-      border-color: #555;
+    #applySettingsBtn:hover {
+      background: #1e7e34;
+      box-shadow: 0 8px 18px rgba(30, 126, 52, 0.7);
     }
-    select:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 8px var(--shadow-color);
+    #closeSettings {
+      background: #dc3545;
+      margin-top: 12px;
+      width: 100%;
+      box-shadow: 0 6px 12px rgba(220, 53, 69, 0.5);
+      letter-spacing: 0.05em;
+      font-weight: 700;
     }
-    .help-text {
-      font-size: 0.9rem;
-      color: #666;
-      margin: -10px 0 16px;
-      font-weight: 500;
+    #closeSettings:hover {
+      background: #b02a37;
+      box-shadow: 0 8px 18px rgba(176, 42, 55, 0.7);
     }
-    body.dark-mode .help-text {
-      color: #aaa;
-    }
-    /* Restore PayPal.me Button Color */
-    #openDonateBtn {
-      background: var(--primary-color);
-      color: white;
+    #openSettingsBtn {
+      user-select: none;
+      background: #343a40;
+      padding: 14px 32px;
+      font-size: 18px;
+      font-weight: 700;
+      border-radius: 14px;
+      color: #fff;
+      box-shadow: 0 6px 12px rgba(52, 58, 64, 0.6);
       transition: background-color 0.3s ease, box-shadow 0.3s ease;
-      box-shadow: 0 4px 9px var(--shadow-color);
+      margin-top: 40px;
+      min-width: 180px;
+      letter-spacing: 0.05em;
+    }
+    #openSettingsBtn:hover {
+      background: #23272b;
+      box-shadow: 0 8px 18px rgba(35, 39, 43, 0.9);
+    }
+    body.dark-mode {
+      background-color: #121212;
+      color: #eee;
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+    body.dark-mode input[type="text"],
+    body.dark-mode input[type="url"] {
+      background-color: #333;
+      color: #eee;
+      border: 1.8px solid #555;
+    }
+    body.dark-mode button {
+      background-color: #1e88e5;
+      color: #eee;
+      box-shadow: 0 4px 9px rgba(30, 136, 229, 0.4);
+    }
+    body.dark-mode button:hover {
+      background-color: #1565c0;
+      box-shadow: 0 6px 15px rgba(21, 101, 192, 0.6);
+    }
+    #openDonateBtn {
+      background-color: #ffc439;
+      color: #111;
+      font-weight: 700;
+      border-radius: 8px;
+      box-shadow: 0 4px 9px rgba(255, 196, 10, 0.7);
+      min-width: 200px;
+      margin: 6px auto 20px auto;
+      display: block;
+      cursor: pointer;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
     }
     #openDonateBtn:hover {
-      background: #0056b3;
-      box-shadow: 0 6px 15px rgba(0, 86, 179, 0.5);
+      background-color: #e6b132;
+      box-shadow: 0 6px 15px rgba(230, 177, 50, 0.9);
     }
-    /* Particle Container Fix */
-    #particleContainer {
+    #loadingBarContainer {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
+      height: 6px;
+      background-color: transparent;
+      z-index: 10000;
+    }
+    #loadingBar {
       height: 100%;
-      pointer-events: none;
+      width: 0%;
+      background-color: #007bff;
+      transition: width 0.3s ease;
+    }
+    #loadingOverlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #000;
+      opacity: 0.8;
+      z-index: 9998;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      font-size: 1.8rem;
+      font-weight: 700;
+      user-select: none;
+      font-family: monospace, monospace;
+      letter-spacing: 0.05em;
+    }
+    #redirectOverlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #000;
+      opacity: 0.9;
+      z-index: 9998;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      font-size: 2rem;
+      font-weight: 700;
+      user-select: none;
+      font-family: monospace, monospace;
+      letter-spacing: 0.05em;
+      flex-direction: column;
+      gap: 20px;
+    }
+    #redirectOverlay.show {
+      display: flex;
+    }
+    #redirectText {
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    #redirectReason {
+      font-size: 1.2rem;
+      font-weight: 400;
+      color: #ccc;
+    }
+    @keyframes pulse {
+      0%, 100% { text-shadow: 0 0 5px rgba(255, 255, 255, 0.8); }
+      50% { text-shadow: 0 0 15px rgba(0, 123, 255, 0.9), 0 0 25px rgba(0, 123, 255, 0.7); }
+    }
+    body.dark-mode #redirectText {
+      animation: pulse-dark 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse-dark {
+      0%, 100% { text-shadow: 0 0 5px rgba(255, 255, 255, 0.8); }
+      50% { text-shadow: 0 0 15px rgba(30, 136, 229, 0.9), 0 0 25px rgba(30, 136, 229, 0.7); }
+    }
+    #redirectCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       z-index: -1;
     }
-    /* ... other existing styles (loading, redirect, particles) unchanged ... */
+    #particleContainer {
+      pointer-events: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .snowflake {
+      position: fixed;
+      top: -10px;
+      border-radius: 50%;
+      opacity: 0.8;
+      pointer-events: none;
+      user-select: none;
+      will-change: transform;
+    }
+    .typing::after {
+      content: "|";
+      display: inline-block;
+      animation: blink 0.7s infinite;
+      font-weight: 700;
+      margin-left: 2px;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    body.dark-mode .typing::after {
+      color: #eee;
+    }
   </style>
 </head>
 <body>
@@ -278,7 +362,7 @@
   </div>
 
   <h1>📶 CloneDNS Portal</h1>
-  <p>🎧 Vibe with music while bypassing censorship! Pick a site, enter a domain, or jam with the player below.</p>
+  <p>You’re connected and avoiding censorship, bro. Choose a site or enter your own domain below. If all else fails, smash the 🔥 fallback button.</p>
 
   <div class="section">
     <form id="customDomainForm">
@@ -286,12 +370,6 @@
       <br />
       <button type="submit">Open Domain</button>
     </form>
-  </div>
-
-  <div class="section music-player-section" id="musicPlayerSection" aria-hidden="true">
-    <h2>🎵 Music Player</h2>
-    <p id="playerMessage">Select a music service in Settings to start jamming! 🎧</p>
-    <div id="musicPlayerContainer"></div>
   </div>
 
   <div class="section">
@@ -316,7 +394,8 @@
   </div>
 
   <div class="section">
-    <button id="openDonateBtn">💸 Donate with PayPal.me (Coming soon!)</button>
+    <button id="openDonateBtn">
+      💸 Donate with PayPal.me (Coming soon!)</button>
   </div>
 
   <div class="section">
@@ -325,9 +404,10 @@
 
   <div id="particleContainer"></div>
 
+  <!-- Settings Modal -->
   <div id="settingsModal" aria-hidden="true">
     <div id="settingsContent" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
-      <h2 id="settingsTitle">Customize Page & Music</h2>
+      <h2 id="settingsTitle">Customize Page & Dark Mode</h2>
 
       <label for="pageTitleInput">Page Title</label>
       <input type="text" id="pageTitleInput" placeholder="Enter new page title" />
@@ -350,34 +430,14 @@
         <span>Enable Typing Animation</span>
       </label>
 
-      <label class="toggle-switch" for="musicPlayerToggle">
-        <input type="checkbox" id="musicPlayerToggle" />
-        <span>Enable Music Player</span>
+      <label for="panicKeyInput" style="margin-top: 22px; text-align: left; font-weight: 600; display: block; font-size: 0.95rem;">
+        Panic Key (single letter or digit)
       </label>
-
-      <label for="musicPlayerSize">Player Size</label>
-      <select id="musicPlayerSize" aria-describedby="musicSizeHelp">
-        <option value="small">Small (200px)</option>
-        <option value="medium">Medium (352px)</option>
-        <option value="large">Large (552px)</option>
-      </select>
-      <p id="musicSizeHelp" class="help-text">Choose the size of the music player.</p>
-
-      <label for="musicServiceSelector">Music Service</label>
-      <select id="musicServiceSelector" aria-describedby="musicServiceHelp">
-        <option value="none">None</option>
-        <option value="spotify">Spotify</option>
-        <option value="youtube">YouTube Music</option>
-      </select>
-      <p id="musicServiceHelp" class="help-text">Enter a playlist URL for Spotify or YouTube Music.</p>
-
-      <label for="musicPlaylistInput">Playlist/Track URL</label>
-      <input type="url" id="musicPlaylistInput" placeholder="e.g., https://open.spotify.com/playlist/..." />
-
-      <label for="panicKeyInput" style="margin-top: 22px;">Panic Key (single letter or digit)</label>
       <input type="text" id="panicKeyInput" maxlength="1" placeholder="Default: P" style="text-transform: uppercase;" />
 
-      <label for="panicUrlInput" style="margin-top: 12px;">Panic URL</label>
+      <label for="panicUrlInput" style="margin-top: 12px; text-align: left; font-weight: 600; display: block; font-size: 0.95rem;">
+        Panic URL
+      </label>
       <input type="url" id="panicUrlInput" placeholder="Default: https://portal.austinisd.org" />
 
       <hr style="margin: 20px 0; border: none; border-top: 1px solid #ccc;" />
@@ -390,7 +450,7 @@
       <label for="searchEngineSelector-settings" style="display:block; font-weight:600; margin-top:16px; text-align:left;">
         Search Engine
       </label>
-      <select id="searchEngineSelector-settings">
+      <select id="searchEngineSelector-settings" style="font-size:16px; border-radius:8px; padding:10px; width:100%; margin-bottom:16px;">
         <option value="duckduckgo">DuckDuckGo</option>
         <option value="google">Google</option>
         <option value="bing">Bing</option>
@@ -405,7 +465,7 @@
   <audio id="warpSound" src="https://assets.mixkit.co/sfx/preview/mixkit-sci-fi-laser-gun-recharge-2580.mp3" preload="auto"></audio>
 
   <script>
-    // ========== Existing Utilities (unchanged) ==========
+    // ========== Loading Overlay & Utilities ==========
     function detectOS() {
       const userAgent = navigator.userAgent || navigator.vendor || window.opera;
       if (/windows phone/i.test(userAgent)) return "WindowsPhone";
@@ -475,7 +535,7 @@
       ]);
     }
 
-    // ========== Existing Redirect Particle System (unchanged) ==========
+    // ========== Redirect Particle System ==========
     class RedirectParticle {
       constructor(x, y, ctx) {
         this.x = x;
@@ -504,7 +564,18 @@
         this.ctx.globalAlpha = 1;
       }
     }
+    const funnyReasons = [
+      "fetching packets",
+      "untangling cables",
+      "convincing server",
+      "warming up the tubes",
+      "polishing pixels",
+      "chasing electrons",
+      "bribing the firewall",
+      "spinning up hamsters"
+    ];
     async function runRedirectScreen(url, siteName) {
+      console.log("runRedirectScreen called with URL:", url, "Site:", siteName);
       try {
         document.body.classList.add("redirecting");
         const overlay = document.getElementById("redirectOverlay");
@@ -541,6 +612,7 @@
           } else {
             overlay.classList.remove("show");
             document.body.classList.remove("redirecting");
+            console.log("Animation complete, navigating to:", url);
             window.open(url, "_blank");
           }
         }
@@ -551,7 +623,7 @@
           warpAudio.play().catch(err => console.error("Warp sound playback failed:", err));
         }
 
-        const reason = ["jamming to tunes", "mixing the beats", "syncing the vibe", "tuning the server"][Math.floor(Math.random() * 4)];
+        const reason = funnyReasons[Math.floor(Math.random() * funnyReasons.length)];
         await Promise.all([
           typeLoadingText(`Loading ${siteName}...`, 1000, document.getElementById("redirectText")),
           typeLoadingText(reason, 800, document.getElementById("redirectReason"))
@@ -561,11 +633,12 @@
         console.error("Redirect animation failed:", err);
         document.getElementById("redirectOverlay").classList.remove("show");
         document.body.classList.remove("redirecting");
+        console.log("Falling back to direct navigation:", url);
         window.open(url, "_blank");
       }
     }
 
-    // ========== Existing Snow Particle System (unchanged) ==========
+    // ========== Snow Particle System ==========
     let particles = [];
     let particleFrame = null;
     let lastScrollY = window.scrollY;
@@ -639,55 +712,7 @@
       });
     }
 
-    // ========== Updated Music Player Logic ==========
-    function updateMusicPlayer() {
-      const playerSection = document.getElementById("musicPlayerSection");
-      const playerContainer = document.getElementById("musicPlayerContainer");
-      const playerMessage = document.getElementById("playerMessage");
-      const isEnabled = localStorage.getItem("musicPlayerEnabled") === "true";
-      const playerSize = localStorage.getItem("musicPlayerSize") || "medium";
-      const service = localStorage.getItem("musicService") || "none";
-      const playlistUrl = localStorage.getItem("musicPlaylistUrl") || "";
-
-      playerSection.classList.toggle("active", isEnabled);
-      playerSection.classList.remove("size-small", "size-medium", "size-large");
-      playerSection.classList.add(`size-${playerSize}`);
-      playerSection.setAttribute("aria-hidden", !isEnabled);
-      playerContainer.innerHTML = "";
-      playerMessage.textContent = service === "none" ? "Select a music service in Settings to start jamming! 🎧" : "Enjoy your music! 🎶";
-
-      if (!isEnabled || service === "none") return;
-
-      let embedCode = "";
-      if (service === "spotify" && playlistUrl) {
-        const playlistId = playlistUrl.match(/playlist\/([a-zA-Z0-9]+)/)?.[1];
-        if (playlistId) {
-          embedCode = `<iframe src="https://open.spotify.com/embed/playlist/${playlistId}?theme=${document.body.classList.contains("dark-mode") ? "0" : "1"}" width="100%" height="${playerSize === 'small' ? 200 : playerSize === 'medium' ? 352 : 552}" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>`;
-        } else {
-          playerMessage.textContent = "Oops! Invalid Spotify playlist URL. Check Settings. 😕";
-        }
-      } else if (service === "youtube" && playlistUrl) {
-        const playlistId = playlistUrl.match(/list=([a-zA-Z0-9_-]+)/)?.[1];
-        if (playlistId) {
-          embedCode = `<iframe src="https://www.youtube.com/embed?list=${playlistId}&autoplay=0" width="100%" height="${playerSize === 'small' ? 200 : playerSize === 'medium' ? 352 : 552}" frameborder="0" allow="autoplay; encrypted-media"></iframe>`;
-        } else {
-          playerMessage.textContent = "Oops! Invalid YouTube Music playlist URL. Check Settings. 😕";
-        }
-      } else {
-        playerMessage.textContent = "Please enter a valid playlist URL in Settings. 😕";
-      }
-
-      if (embedCode) {
-        playerContainer.innerHTML = embedCode;
-        if (localStorage.getItem("clickSoundEnabled") === "true") {
-          const audio = document.getElementById("clickSound");
-          audio.currentTime = 0;
-          audio.play().catch(err => console.error("Click sound failed:", err));
-        }
-      }
-    }
-
-    // ========== Updated Settings ==========
+    // ========== Settings ==========
     function loadSettings() {
       try {
         console.log("Loading settings");
@@ -700,10 +725,6 @@
         const clickSound = localStorage.getItem("clickSoundEnabled") === "true";
         const searchEngine = localStorage.getItem("searchEngine") || "duckduckgo";
         const typingAnimation = localStorage.getItem("typingAnimation") === "true";
-        const musicPlayerEnabled = localStorage.getItem("musicPlayerEnabled") === "true";
-        const musicPlayerSize = localStorage.getItem("musicPlayerSize") || "medium";
-        const musicService = localStorage.getItem("musicService") || "none";
-        const musicPlaylistUrl = localStorage.getItem("musicPlaylistUrl") || "";
 
         document.getElementById("darkModeToggle").checked = darkMode;
         document.getElementById("particlesToggle").checked = particlesEnabled;
@@ -714,10 +735,6 @@
         document.getElementById("clickSoundToggle").checked = clickSound;
         document.getElementById("searchEngineSelector-settings").value = searchEngine;
         document.getElementById("typingAnimationToggle").checked = typingAnimation;
-        document.getElementById("musicPlayerToggle").checked = musicPlayerEnabled;
-        document.getElementById("musicPlayerSize").value = musicPlayerSize;
-        document.getElementById("musicServiceSelector").value = musicService;
-        document.getElementById("musicPlaylistInput").value = musicPlaylistUrl;
 
         if (darkMode) document.body.classList.add("dark-mode");
         else document.body.classList.remove("dark-mode");
@@ -726,7 +743,6 @@
         if (faviconUrl) document.getElementById("favicon").href = faviconUrl;
 
         updateParticles();
-        updateMusicPlayer();
       } catch (err) {
         console.error("Failed to load settings:", err);
       }
@@ -743,10 +759,6 @@
         const clickSound = document.getElementById("clickSoundToggle").checked;
         const searchEngine = document.getElementById("searchEngineSelector-settings").value;
         const typingAnimation = document.getElementById("typingAnimationToggle").checked;
-        const musicPlayerEnabled = document.getElementById("musicPlayerToggle").checked;
-        const musicPlayerSize = document.getElementById("musicPlayerSize").value;
-        const musicService = document.getElementById("musicServiceSelector").value;
-        const musicPlaylistUrl = document.getElementById("musicPlaylistInput").value.trim();
 
         localStorage.setItem("darkMode", darkMode);
         localStorage.setItem("particlesEnabled", particlesEnabled);
@@ -757,10 +769,6 @@
         localStorage.setItem("clickSoundEnabled", clickSound);
         localStorage.setItem("searchEngine", searchEngine);
         localStorage.setItem("typingAnimation", typingAnimation);
-        localStorage.setItem("musicPlayerEnabled", musicPlayerEnabled);
-        localStorage.setItem("musicPlayerSize", musicPlayerSize);
-        localStorage.setItem("musicService", musicService);
-        localStorage.setItem("musicPlaylistUrl", musicPlaylistUrl);
 
         if (darkMode) document.body.classList.add("dark-mode");
         else document.body.classList.remove("dark-mode");
@@ -770,27 +778,19 @@
 
         updateParticles();
         updateParticleColors();
-        updateMusicPlayer();
       } catch (err) {
         console.error("Failed to save settings:", err);
       }
     }
 
     // ========== Modal Events ==========
-    document.getElementById("darkModeToggle").addEventListener("change", () => {
-      updateParticleColors();
-      updateMusicPlayer();
-    });
+    document.getElementById("darkModeToggle").addEventListener("change", updateParticleColors);
     document.getElementById("particlesToggle").addEventListener("change", updateParticles);
-    document.getElementById("musicPlayerToggle").addEventListener("change", updateMusicPlayer);
-    document.getElementById("musicPlayerSize").addEventListener("change", updateMusicPlayer);
-    document.getElementById("musicServiceSelector").addEventListener("change", updateMusicPlayer);
 
     document.getElementById("openSettingsBtn").addEventListener("click", () => {
       console.log("Opening settings modal");
       document.getElementById("settingsModal").classList.add("show");
       document.getElementById("settingsModal").setAttribute("aria-hidden", "false");
-      document.getElementById("musicPlayerToggle").focus();
     });
 
     document.getElementById("closeSettings").addEventListener("click", () => {
@@ -829,15 +829,15 @@
         const engine = localStorage.getItem("searchEngine") || "duckduckgo";
         if (!input) return;
         if (input.startsWith("http://") || input.startsWith("https://")) {
-          runRedirectScreen(input, input);
+          window.location.href = input;
         } else if (input.includes(".")) {
-          runRedirectScreen("https://" + input, input);
+          window.location.href = "https://" + input;
         } else {
           let searchURL = "";
           if (engine === "google") searchURL = `https://www.google.com/search?q=${encodeURIComponent(input)}`;
           else if (engine === "bing") searchURL = `https://www.bing.com/search?q=${encodeURIComponent(input)}`;
           else searchURL = `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
-          runRedirectScreen(searchURL, "Search");
+          window.location.href = searchURL;
         }
       } catch (err) {
         console.error("Form submission failed:", err);
@@ -892,7 +892,7 @@
       });
     });
 
-    // ========== Page Load Logic ==========
+    // ========== Page Load Logic with Typing Animation ==========
     window.onload = async () => {
       try {
         console.log("Page loading, applying settings");
@@ -909,11 +909,10 @@
           console.log("Running typing animation");
           const elements = [
             { el: document.querySelector("h1"), text: "📶 CloneDNS Portal", duration: 1000 },
-            { el: document.querySelector("p"), text: "🎧 Vibe with music while bypassing censorship! Pick a site, enter a domain, or jam with the player below.", duration: 2000 },
-            { el: document.querySelector(".section:nth-child(2) h2"), text: "🎵 Music Player", duration: 800 },
-            { el: document.querySelector(".section:nth-child(3) h2"), text: "Quick Links (Open in New Tab)", duration: 800 },
-            { el: document.querySelector(".section:nth-child(4) h2"), text: "🚨 Fallback Button", duration: 800 },
-            { el: document.querySelector(".section:nth-child(5) h2"), text: "GitHub Repository", duration: 800 }
+            { el: document.querySelector("p"), text: "You’re connected and avoiding censorship, bro. Choose a site or enter your own domain below. If all else fails, smash the 🔥 fallback button.", duration: 2000 },
+            { el: document.querySelector(".section:nth-child(2) h2"), text: "Quick Links (Open in New Tab)", duration: 800 },
+            { el: document.querySelector(".section:nth-child(3) h2"), text: "🚨 Fallback Button", duration: 800 },
+            { el: document.querySelector(".section:nth-child(4) h2"), text: "GitHub Repository", duration: 800 }
           ];
           for (const { el } of elements) {
             if (el) el.style.visibility = "hidden";
