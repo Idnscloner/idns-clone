@@ -6,7 +6,7 @@
   <title>Wi-Fi Configuration Utility</title>
   <link id="favicon" rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/6/6a/Wi-Fi_icon.svg" />
   <style>
-    /* Existing styles unchanged, adding refined music player styles */
+    /* CSS Variables for Consistency */
     :root {
       --primary-color: #007bff;
       --bg-color: #f2f2f2;
@@ -19,6 +19,72 @@
       --text-color: #eee;
       --shadow-color: rgba(30, 136, 229, 0.4);
     }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      padding: 40px 20px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      transition: background-color 0.4s ease, color 0.4s ease;
+      user-select: none;
+      overflow-x: hidden;
+    }
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    p {
+      font-size: 1.2rem;
+      max-width: 600px;
+      margin: 0 auto 28px;
+      line-height: 1.5;
+    }
+    .section {
+      margin-top: 28px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 28px;
+      font-size: 16px;
+      font-weight: 600;
+      background: var(--primary-color);
+      color: white;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 9px var(--shadow-color);
+      margin: 6px 8px 20px;
+      min-width: 120px;
+      letter-spacing: 0.04em;
+    }
+    button:hover {
+      background: #0056b3;
+      box-shadow: 0 6px 15px rgba(0, 86, 179, 0.5);
+    }
+    input[type="text"],
+    input[type="url"] {
+      padding: 10px;
+      font-size: 16px;
+      width: calc(100% - 24px);
+      border-radius: 8px;
+      border: 1.8px solid #ccc;
+      margin-bottom: 16px;
+      font-weight: 500;
+      user-select: text;
+      background: #fff;
+      color: var(--text-color);
+    }
+    body.dark-mode input[type="text"],
+    body.dark-mode input[type="url"] {
+      background: #333;
+      border-color: #555;
+      color: #eee;
+    }
+    /* Refined Music Player Section */
     .music-player-section {
       margin-top: 28px;
       max-width: 600px;
@@ -38,40 +104,114 @@
       opacity: 1;
       transform: translateY(0);
     }
-    .music-player-section.mini-player {
-      max-width: 300px;
-      padding: 10px;
+    .music-player-section.size-small {
+      max-width: 400px;
     }
-    .music-player-section iframe {
-      width: 100%;
-      height: 80px; /* Smaller height for mini-player aesthetic */
-      border: none;
-      border-radius: 8px;
-      background: #fff;
-      transition: height 0.3s ease;
+    .music-player-section.size-medium {
+      max-width: 600px;
     }
-    .music-player-section:not(.mini-player) iframe {
-      height: 152px; /* Standard height for full player */
-    }
-    body.dark-mode .music-player-section iframe {
-      background: #333;
+    .music-player-section.size-large {
+      max-width: 800px;
     }
     .music-player-section h2 {
       font-size: 1.8rem;
       font-weight: 700;
-      margin-bottom: 10px;
+      margin: 0 0 12px;
       color: var(--text-color);
     }
     .music-player-section p {
       font-size: 1rem;
       color: #666;
-      margin: 10px 0;
+      margin: 0 0 12px;
       font-weight: 500;
+      line-height: 1.4;
     }
     body.dark-mode .music-player-section p {
       color: #aaa;
     }
-    /* Update select styles for consistency */
+    .music-player-section iframe {
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      background: #fff;
+      transition: height 0.3s ease;
+      margin-top: 12px;
+    }
+    body.dark-mode .music-player-section iframe {
+      background: #333;
+    }
+    .music-player-section.size-small iframe {
+      height: 152px;
+    }
+    .music-player-section.size-medium iframe {
+      height: 352px;
+    }
+    .music-player-section.size-large iframe {
+      height: 552px;
+    }
+    /* Settings Modal */
+    #settingsModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    #settingsModal.show {
+      display: flex;
+    }
+    #settingsContent {
+      background: var(--bg-color);
+      padding: 24px;
+      border-radius: 12px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+    #settingsContent h2 {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+    }
+    .toggle-switch {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .toggle-switch input {
+      appearance: none;
+      width: 40px;
+      height: 20px;
+      background: #ccc;
+      border-radius: 20px;
+      position: relative;
+      cursor: pointer;
+      margin-right: 10px;
+      transition: background 0.3s ease;
+    }
+    .toggle-switch input:checked {
+      background: var(--primary-color);
+    }
+    .toggle-switch input::before {
+      content: "";
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.3s ease;
+    }
+    .toggle-switch input:checked::before {
+      transform: translateX(20px);
+    }
     select {
       padding: 10px;
       font-size: 16px;
@@ -93,41 +233,19 @@
       border-color: var(--primary-color);
       box-shadow: 0 0 8px var(--shadow-color);
     }
-    /* Existing styles (unchanged, summarized) */
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      text-align: center;
-      padding: 40px;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      transition: background-color 0.4s ease, color 0.4s ease;
-      user-select: none;
-      overflow-x: hidden;
+    .help-text {
+      font-size: 0.9rem;
+      color: #666;
+      margin: -10px 0 16px;
+      font-weight: 500;
     }
-    button {
-      cursor: pointer;
-      border: none;
-      border-radius: 8px;
-      padding: 12px 28px;
-      font-size: 16px;
-      font-weight: 600;
-      background: var(--primary-color);
-      color: white;
-      transition: background-color 0.3s ease, box-shadow 0.3s ease;
-      box-shadow: 0 4px 9px var(--shadow-color);
-      margin: 6px 8px 20px;
-      min-width: 120px;
-      letter-spacing: 0.04em;
+    body.dark-mode .help-text {
+      color: #aaa;
     }
-    button:hover {
-      background: #0056b3;
-      box-shadow: 0 6px 15px rgba(0, 86, 179, 0.5);
-    }
-    /* ... other existing styles ... */
+    /* ... other existing styles (loading, redirect, particles) unchanged ... */
   </style>
 </head>
 <body>
-  <!-- Existing HTML, adding refined music player section -->
   <div id="loadingOverlay"><span id="loadingText"></span></div>
   <div id="loadingBarContainer"><div id="loadingBar"></div></div>
   <div id="redirectOverlay" aria-live="polite">
@@ -137,7 +255,7 @@
   </div>
 
   <h1>📶 CloneDNS Portal</h1>
-  <p>🎧 Enjoy music while bypassing censorship! Pick a site, enter a domain, or vibe with the player below.</p>
+  <p>🎧 Vibe with music while bypassing censorship! Pick a site, enter a domain, or jam with the player below.</p>
 
   <div class="section">
     <form id="customDomainForm">
@@ -149,7 +267,7 @@
 
   <div class="section music-player-section" id="musicPlayerSection" aria-hidden="true">
     <h2>🎵 Music Player</h2>
-    <p id="playerMessage">Select a music service in Settings to start jamming!</p>
+    <p id="playerMessage">Select a music service in Settings to start jamming! 🎧</p>
     <div id="musicPlayerContainer"></div>
   </div>
 
@@ -184,7 +302,6 @@
 
   <div id="particleContainer"></div>
 
-  <!-- Updated Settings Modal -->
   <div id="settingsModal" aria-hidden="true">
     <div id="settingsContent" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
       <h2 id="settingsTitle">Customize Page & Music</h2>
@@ -215,10 +332,13 @@
         <span>Enable Music Player</span>
       </label>
 
-      <label class="toggle-switch" for="miniPlayerToggle">
-        <input type="checkbox" id="miniPlayerToggle" />
-        <span>Use Mini Player</span>
-      </label>
+      <label for="musicPlayerSize">Player Size</label>
+      <select id="musicPlayerSize" aria-describedby="musicSizeHelp">
+        <option value="small">Small (152px)</option>
+        <option value="medium">Medium (352px)</option>
+        <option value="large">Large (552px)</option>
+      </select>
+      <p id="musicSizeHelp" class="help-text">Choose the size of the music player.</p>
 
       <label for="musicServiceSelector">Music Service</label>
       <select id="musicServiceSelector" aria-describedby="musicServiceHelp">
@@ -496,18 +616,19 @@
       });
     }
 
-    // ========== Refined Music Player Logic ==========
+    // ========== Updated Music Player Logic ==========
     function updateMusicPlayer() {
       const playerSection = document.getElementById("musicPlayerSection");
       const playerContainer = document.getElementById("musicPlayerContainer");
       const playerMessage = document.getElementById("playerMessage");
       const isEnabled = localStorage.getItem("musicPlayerEnabled") === "true";
-      const isMiniPlayer = localStorage.getItem("miniPlayerEnabled") === "true";
+      const playerSize = localStorage.getItem("musicPlayerSize") || "medium";
       const service = localStorage.getItem("musicService") || "none";
       const playlistUrl = localStorage.getItem("musicPlaylistUrl") || "";
 
       playerSection.classList.toggle("active", isEnabled);
-      playerSection.classList.toggle("mini-player", isMiniPlayer && isEnabled);
+      playerSection.classList.remove("size-small", "size-medium", "size-large");
+      playerSection.classList.add(`size-${playerSize}`);
       playerSection.setAttribute("aria-hidden", !isEnabled);
       playerContainer.innerHTML = "";
       playerMessage.textContent = service === "none" ? "Select a music service in Settings to start jamming! 🎧" : "Enjoy your music! 🎶";
@@ -518,14 +639,14 @@
       if (service === "spotify" && playlistUrl) {
         const playlistId = playlistUrl.match(/playlist\/([a-zA-Z0-9]+)/)?.[1];
         if (playlistId) {
-          embedCode = `<iframe src="https://open.spotify.com/embed/playlist/${playlistId}?theme=${document.body.classList.contains("dark-mode") ? "0" : "1"}" width="100%" height="${isMiniPlayer ? 80 : 152}" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>`;
+          embedCode = `<iframe src="https://open.spotify.com/embed/playlist/${playlistId}?theme=${document.body.classList.contains("dark-mode") ? "0" : "1"}" width="100%" height="${playerSize === 'small' ? 152 : playerSize === 'medium' ? 352 : 552}" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>`;
         } else {
           playerMessage.textContent = "Oops! Invalid Spotify playlist URL. Check Settings. 😕";
         }
       } else if (service === "youtube" && playlistUrl) {
         const playlistId = playlistUrl.match(/list=([a-zA-Z0-9_-]+)/)?.[1];
         if (playlistId) {
-          embedCode = `<iframe src="https://www.youtube.com/embed?list=${playlistId}&autoplay=0" width="100%" height="${isMiniPlayer ? 80 : 152}" frameborder="0" allow="autoplay; encrypted-media"></iframe>`;
+          embedCode = `<iframe src="https://www.youtube.com/embed?list=${playlistId}&autoplay=0" width="100%" height="${playerSize === 'small' ? 152 : playerSize === 'medium' ? 352 : 552}" frameborder="0" allow="autoplay; encrypted-media"></iframe>`;
         } else {
           playerMessage.textContent = "Oops! Invalid YouTube Music playlist URL. Check Settings. 😕";
         }
@@ -557,7 +678,7 @@
         const searchEngine = localStorage.getItem("searchEngine") || "duckduckgo";
         const typingAnimation = localStorage.getItem("typingAnimation") === "true";
         const musicPlayerEnabled = localStorage.getItem("musicPlayerEnabled") === "true";
-        const miniPlayerEnabled = localStorage.getItem("miniPlayerEnabled") === "true";
+        const musicPlayerSize = localStorage.getItem("musicPlayerSize") || "medium";
         const musicService = localStorage.getItem("musicService") || "none";
         const musicPlaylistUrl = localStorage.getItem("musicPlaylistUrl") || "";
 
@@ -571,7 +692,7 @@
         document.getElementById("searchEngineSelector-settings").value = searchEngine;
         document.getElementById("typingAnimationToggle").checked = typingAnimation;
         document.getElementById("musicPlayerToggle").checked = musicPlayerEnabled;
-        document.getElementById("miniPlayerToggle").checked = miniPlayerEnabled;
+        document.getElementById("musicPlayerSize").value = musicPlayerSize;
         document.getElementById("musicServiceSelector").value = musicService;
         document.getElementById("musicPlaylistInput").value = musicPlaylistUrl;
 
@@ -600,7 +721,7 @@
         const searchEngine = document.getElementById("searchEngineSelector-settings").value;
         const typingAnimation = document.getElementById("typingAnimationToggle").checked;
         const musicPlayerEnabled = document.getElementById("musicPlayerToggle").checked;
-        const miniPlayerEnabled = document.getElementById("miniPlayerToggle").checked;
+        const musicPlayerSize = document.getElementById("musicPlayerSize").value;
         const musicService = document.getElementById("musicServiceSelector").value;
         const musicPlaylistUrl = document.getElementById("musicPlaylistInput").value.trim();
 
@@ -614,7 +735,7 @@
         localStorage.setItem("searchEngine", searchEngine);
         localStorage.setItem("typingAnimation", typingAnimation);
         localStorage.setItem("musicPlayerEnabled", musicPlayerEnabled);
-        localStorage.setItem("miniPlayerEnabled", miniPlayerEnabled);
+        localStorage.setItem("musicPlayerSize", musicPlayerSize);
         localStorage.setItem("musicService", musicService);
         localStorage.setItem("musicPlaylistUrl", musicPlaylistUrl);
 
@@ -632,21 +753,21 @@
       }
     }
 
-    // ========== Modal Events (updated) ==========
+    // ========== Modal Events ==========
     document.getElementById("darkModeToggle").addEventListener("change", () => {
       updateParticleColors();
-      updateMusicPlayer(); // Update player theme
+      updateMusicPlayer();
     });
     document.getElementById("particlesToggle").addEventListener("change", updateParticles);
     document.getElementById("musicPlayerToggle").addEventListener("change", updateMusicPlayer);
-    document.getElementById("miniPlayerToggle").addEventListener("change", updateMusicPlayer);
+    document.getElementById("musicPlayerSize").addEventListener("change", updateMusicPlayer);
     document.getElementById("musicServiceSelector").addEventListener("change", updateMusicPlayer);
 
     document.getElementById("openSettingsBtn").addEventListener("click", () => {
       console.log("Opening settings modal");
       document.getElementById("settingsModal").classList.add("show");
       document.getElementById("settingsModal").setAttribute("aria-hidden", "false");
-      document.getElementById("musicServiceSelector").focus();
+      document.getElementById("musicPlayerToggle").focus();
     });
 
     document.getElementById("closeSettings").addEventListener("click", () => {
@@ -663,7 +784,7 @@
       document.getElementById("settingsModal").setAttribute("aria-hidden", "true");
     });
 
-    // ========== Existing Panic Key Shortcut (unchanged) ==========
+    // ========== Panic Key Shortcut ==========
     window.addEventListener("keydown", e => {
       try {
         const panicKey = (localStorage.getItem("panicKey") || "P").toUpperCase();
@@ -676,7 +797,7 @@
       }
     });
 
-    // ========== Existing Search Form with Engine (unchanged) ==========
+    // ========== Search Form with Engine ==========
     document.getElementById("customDomainForm").addEventListener("submit", (e) => {
       e.preventDefault();
       try {
@@ -700,7 +821,7 @@
       }
     });
 
-    // ========== Existing Quick Links with Redirect (updated for consistency) ==========
+    // ========== Quick Links with Redirect ==========
     const siteNames = {
       'https://www.google.com': 'Google',
       'https://www.youtube.com': 'YouTube',
@@ -733,7 +854,7 @@
       });
     });
 
-    // ========== Existing Click Sound (unchanged) ==========
+    // ========== Click Sound ==========
     document.querySelectorAll('button').forEach(btn => {
       btn.addEventListener('click', () => {
         if (localStorage.getItem("clickSoundEnabled") === "true") {
@@ -748,7 +869,7 @@
       });
     });
 
-    // ========== Updated Page Load Logic ==========
+    // ========== Page Load Logic ==========
     window.onload = async () => {
       try {
         console.log("Page loading, applying settings");
@@ -765,7 +886,7 @@
           console.log("Running typing animation");
           const elements = [
             { el: document.querySelector("h1"), text: "📶 CloneDNS Portal", duration: 1000 },
-            { el: document.querySelector("p"), text: "🎧 Enjoy music while bypassing censorship! Pick a site, enter a domain, or vibe with the player below.", duration: 2000 },
+            { el: document.querySelector("p"), text: "🎧 Vibe with music while bypassing censorship! Pick a site, enter a domain, or jam with the player below.", duration: 2000 },
             { el: document.querySelector(".section:nth-child(2) h2"), text: "🎵 Music Player", duration: 800 },
             { el: document.querySelector(".section:nth-child(3) h2"), text: "Quick Links (Open in New Tab)", duration: 800 },
             { el: document.querySelector(".section:nth-child(4) h2"), text: "🚨 Fallback Button", duration: 800 },
